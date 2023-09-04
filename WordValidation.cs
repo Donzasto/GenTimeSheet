@@ -67,7 +67,7 @@ internal class WordValidation
             schedule.Add(name);
         }
 
-        for (int i = 1; i < schedule.Count; i++)
+        for (int i = 1; i < schedule[0].Count; i++)
         {
             if (schedule.Count(r => r[i] is "Х" or "X") is not (2 or 3))
                 Console.WriteLine($"day {i}");
@@ -102,7 +102,7 @@ internal class WordValidation
     {
         var half = _table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().Skip(3).Select(cell => cell.InnerText).ToArray();
 
-        for (int i = 0; i < half.Length; i++)
+        for (int i = 0; i < half.Length - 1; i++)
         {
             if (half[i] is "Х" or "X" && half[i + 1] is "8")
                 Console.WriteLine("X and eight");
