@@ -54,23 +54,21 @@ internal class WordValidation
             Console.WriteLine("weekends color");
     }
 
-    internal void CheckPeopleCount()
+    internal void CheckXsCount()
     {
         var schedule = new List<List<string>>();
 
         foreach (var row in _table1.Elements<TableRow>())
         {
-            var name = new List<string>() { row.ElementAt(2).InnerText };
-            var days = row.Elements<TableCell>().Skip(3).Select(c => c.InnerText);
+            var days = row.Elements<TableCell>().Skip(3).Select(c => c.InnerText).ToList();
 
-            name.AddRange(days);
-            schedule.Add(name);
+            schedule.Add(days);
         }
 
-        for (int i = 1; i < schedule[0].Count; i++)
+        for (int i = 0; i < schedule[0].Count; i++)
         {
             if (schedule.Count(r => r[i] is "Х" or "X") is not (2 or 3))
-                Console.WriteLine($"day {i}");
+                Console.WriteLine($"day {i + 1}");
         }
     }
 

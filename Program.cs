@@ -2,7 +2,7 @@
 
 wordValidation.CheckDaysInMonth();
 wordValidation.CheckWeekendsColor();
-wordValidation.CheckPeopleCount();
+wordValidation.CheckXsCount();
 wordValidation.CheckWeekendsWithEights();
 wordValidation.CheckFirstDay();
 wordValidation.CheckOrderXand8();
