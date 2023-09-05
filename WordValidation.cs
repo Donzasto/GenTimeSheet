@@ -5,14 +5,18 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 internal class WordValidation
 {
-    private string _filePath1;
-    private string _filePath2;
+    private const string RU_X = "Х";
+    private const string EN_X = "X";
+    private const string EIGHT = "8";
 
-    private int _month;
-    private int _year;
+    private readonly string _filePath1;
+    private readonly string _filePath2;
 
-    private Table _table1;
-    private Table _table2;
+    private readonly int _month;
+    private readonly int _year;
+
+    private readonly Table _table1;
+    private readonly Table _table2;
 
     public WordValidation()
     {
@@ -67,7 +71,7 @@ internal class WordValidation
 
         for (int i = 0; i < schedule[0].Count; i++)
         {
-            if (schedule.Count(r => r[i] is "Х" or "X") is not (2 or 3))
+            if (schedule.Count(r => r[i] is RU_X or EN_X) is not (2 or 3))
                 Console.WriteLine($"day {i + 1}");
         }
     }
@@ -76,7 +80,7 @@ internal class WordValidation
     {
         bool hasWeekendsWithEights = _table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
                                         Skip(3).
-                                        Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null && cells.InnerText == "8").
+                                        Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null && cells.InnerText is EIGHT).
                                         Any();
 
         if (hasWeekendsWithEights)
@@ -85,10 +89,10 @@ internal class WordValidation
 
     internal void CheckFirstDay()
     {
-        var hasIncorrectFirstDay = _table2.Elements<TableRow>().Where(rows => rows.Elements<TableCell>().Last().InnerText is "Х" or "X").
+        var hasIncorrectFirstDay = _table2.Elements<TableRow>().Where(rows => rows.Elements<TableCell>().Last().InnerText is RU_X or EN_X).
                                         Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText).
                                         Intersect(_table1.Elements<TableRow>().
-                                        Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText is "Х" or "X" or "8").
+                                        Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText is RU_X or EN_X or EIGHT).
                                         Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText)).
                                         Any();
 
@@ -102,7 +106,7 @@ internal class WordValidation
 
         for (int i = 0; i < half.Length - 1; i++)
         {
-            if (half[i] is "Х" or "X" && half[i + 1] is "8")
+            if (half[i] is RU_X or EN_X && half[i + 1] is EIGHT)
                 Console.WriteLine("X and eight");
         }
     }
