@@ -71,7 +71,7 @@ internal class WordValidation
 
         for (int i = 0; i < schedule[0].Count; i++)
         {
-            if (schedule.Count(r => r[i] is RU_X or EN_X) is not (2 or 3))
+            if (schedule.Count(r => r[i].EqualsOneOf(RU_X, EN_X)) is not (2 or 3))
                 Console.WriteLine($"day {i + 1}");
         }
     }
@@ -80,7 +80,8 @@ internal class WordValidation
     {
         bool hasWeekendsWithEights = _table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
                                         Skip(3).
-                                        Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null && cells.InnerText is EIGHT).
+                                        Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
+                                            cells.InnerText.EqualsOneOf(EIGHT)).
                                         Any();
 
         if (hasWeekendsWithEights)
@@ -89,10 +90,10 @@ internal class WordValidation
 
     internal void CheckFirstDay()
     {
-        var hasIncorrectFirstDay = _table2.Elements<TableRow>().Where(rows => rows.Elements<TableCell>().Last().InnerText is RU_X or EN_X).
+        var hasIncorrectFirstDay = _table2.Elements<TableRow>().Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(RU_X, EN_X)).
                                         Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText).
                                         Intersect(_table1.Elements<TableRow>().
-                                        Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText is RU_X or EN_X or EIGHT).
+                                        Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText.EqualsOneOf(RU_X, EN_X, EIGHT)).
                                         Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText)).
                                         Any();
 
@@ -106,25 +107,25 @@ internal class WordValidation
 
         for (int i = 0; i < half.Length - 1; i++)
         {
-            if (half[i] is RU_X or EN_X && half[i + 1] is EIGHT)
+            if (half[i].EqualsOneOf(RU_X, EN_X) && half[i + 1].EqualsOneOf(EIGHT))
                 Console.WriteLine("X and eight");
         }
     }
 
-    private Body GetBody(string filePath)
+    private static Body GetBody(string filePath)
     {
         using WordprocessingDocument wordprocessingDocument = WordprocessingDocument.Open(filePath, false);
 
         return wordprocessingDocument.MainDocumentPart.Document.Body;
     }
 
-    private Table GetLastTable(string filePath) => GetElements<Table>(filePath).Last();
+    private static Table GetLastTable(string filePath) => GetElements<Table>(filePath).Last();
 
-    private Paragraph GetFirstParagraph(string filePath) => GetElements<Paragraph>(filePath).First();
+    private static Paragraph GetFirstParagraph(string filePath) => GetElements<Paragraph>(filePath).First();
 
-    private IEnumerable<T> GetElements<T>(string filePath) where T : OpenXmlElement => GetBody(filePath).Elements<T>();
+    private static IEnumerable<T> GetElements<T>(string filePath) where T : OpenXmlElement => GetBody(filePath).Elements<T>();
 
-    private string GetFilePath(string fileName)
+    private static string GetFilePath(string fileName)
     {
         string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string file = Path.Combine(currentDirectory, @"../../../static/" + fileName);
@@ -132,4 +133,9 @@ internal class WordValidation
 
         return filePath;
     }
+}
+
+public static class StringExtension
+{
+    public static bool EqualsOneOf(this string s, params string[] strings) => strings.Contains(s.Trim(), StringComparer.OrdinalIgnoreCase);
 }
