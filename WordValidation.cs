@@ -5,9 +5,9 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 internal class WordValidation
 {
-    private const string RU_X = "Х";
-    private const string EN_X = "X";
-    private const string EIGHT = "8";
+    internal const string RU_X = "Х";
+    internal const string EN_X = "X";
+    internal const string EIGHT = "8";
 
     private readonly string _filePath1;
     private readonly string _filePath2;
