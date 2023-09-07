@@ -15,7 +15,7 @@ internal class WordValidation
     private readonly int _month;
     private readonly int _year;
 
-    private readonly Table _table1;
+    internal readonly Table Table1;
     private readonly Table _table2;
 
     public WordValidation()
@@ -23,7 +23,7 @@ internal class WordValidation
         _filePath1 = GetFilePath("1.docx");
         _filePath2 = GetFilePath("2.docx");
 
-        _table1 = GetLastTable(_filePath1);
+        Table1 = GetLastTable(_filePath1);
         _table2 = GetLastTable(_filePath2);
 
         string monthName = GetStringsFromParagraph(_filePath1)[^3];
@@ -38,7 +38,7 @@ internal class WordValidation
 
     internal void CheckDaysInMonth()
     {
-        string lastDayMonth = _table1.Elements<TableRow>().First().Elements<TableCell>().Last().
+        string? lastDayMonth = Table1.Elements<TableRow>().First().Elements<TableCell>().Last().
             InnerText;
 
         int daysInMonth = DateTime.DaysInMonth(_year, _month);
@@ -49,10 +49,10 @@ internal class WordValidation
 
     internal void CheckWeekendsColor()
     {
-        bool HasIncorrectWeekendsColor = _table1.Elements<TableRow>().First().Elements<TableCell>().
-            Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
+        bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
+            Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
             new DateOnly(_year, _month, int.Parse(cells.InnerText)).
-            DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday)).Any();
+            DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday));
 
         if (HasIncorrectWeekendsColor)
             Console.WriteLine("weekends color");
@@ -60,7 +60,7 @@ internal class WordValidation
 
     internal void CheckXsCount()
     {
-        var rows = _table1.Elements<TableRow>().Select(cell => cell.Elements<TableCell>().Skip(3).
+        var rows = Table1.Elements<TableRow>().Select(cell => cell.Elements<TableCell>().Skip(3).
            ToList());
 
         for (int i = 0; i < rows.First().Count; i++)
@@ -72,9 +72,9 @@ internal class WordValidation
 
     internal void CheckWeekendsWithEights()
     {
-        bool hasWeekendsWithEights = _table1.Elements<TableRow>().ElementAt(3).
-            Elements<TableCell>().Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).
-            Shading is not null && cells.InnerText.EqualsOneOf(EIGHT)).Any();
+        bool hasWeekendsWithEights = Table1.Elements<TableRow>().ElementAt(3).
+            Elements<TableCell>().Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).
+            Shading is not null && cells.InnerText.EqualsOneOf(EIGHT));
 
         if (hasWeekendsWithEights)
             Console.WriteLine("weekend with eights");
@@ -85,7 +85,7 @@ internal class WordValidation
         var hasIncorrectFirstDay = _table2.Elements<TableRow>().
             Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(RU_X, EN_X)).
             Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText).
-            Intersect(_table1.Elements<TableRow>().
+            Intersect(Table1.Elements<TableRow>().
             Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText.
             EqualsOneOf(RU_X, EN_X, EIGHT)).
             Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText)).Any();
@@ -96,7 +96,7 @@ internal class WordValidation
 
     internal void CheckOrderXand8()
     {
-        var days = _table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
+        var days = Table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
 
         for (int i = 3; i < days.Length - 1; i++)
