@@ -1,9 +1,10 @@
 using System.Globalization;
+using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-internal class WordValidation
+internal class Validation
 {
     internal const string RU_X = "Х";
     internal const string EN_X = "X";
@@ -18,7 +19,9 @@ internal class WordValidation
     internal readonly Table Table1;
     private readonly Table _table2;
 
-    public WordValidation()
+    internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
+
+    public Validation()
     {
         _filePath1 = GetFilePath("1.docx");
         _filePath2 = GetFilePath("2.docx");
@@ -31,6 +34,8 @@ internal class WordValidation
         _month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
 
         _year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);
+
+        NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
 
     private static string[] GetStringsFromParagraph(string filePath1) =>
@@ -60,8 +65,8 @@ internal class WordValidation
 
     internal void CheckXsCount()
     {
-        var rows = Table1.Elements<TableRow>().Select(cell => cell.Elements<TableCell>().Skip(3).
-           ToList());
+        IEnumerable<List<TableCell>> rows = Table1.Elements<TableRow>().Select(cell =>
+            cell.Elements<TableCell>().Skip(3).ToList());
 
         for (int i = 0; i < rows.First().Count; i++)
         {
@@ -82,17 +87,21 @@ internal class WordValidation
 
     internal void CheckFirstDay()
     {
-        var hasIncorrectFirstDay = _table2.Elements<TableRow>().
-            Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(RU_X, EN_X)).
-            Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText).
+        bool hasIncorrectFirstDay = NamesWorkedLastDayMonth.
             Intersect(Table1.Elements<TableRow>().
             Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText.
             EqualsOneOf(RU_X, EN_X, EIGHT)).
-            Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText)).Any();
+            Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText.Replace(" ", ""))).
+            Any();
 
         if (hasIncorrectFirstDay)
             Console.WriteLine("first day");
     }
+
+    internal IEnumerable<string> GetNamesWorkedLastDayMonth() => _table2.Elements<TableRow>().
+            Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(RU_X, EN_X)).
+            Select(rows => Regex.Replace(rows.Elements<TableCell>().ElementAt(1).InnerText, @"\s+",
+                string.Empty));
 
     internal void CheckOrderXand8()
     {
@@ -122,7 +131,7 @@ internal class WordValidation
     private static IEnumerable<T> GetElements<T>(string filePath) where T : OpenXmlElement =>
         GetBody(filePath).Elements<T>();
 
-    private static string GetFilePath(string fileName)
+    internal static string GetFilePath(string fileName)
     {
         string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string file = Path.Combine(currentDirectory, @"../../../static/" + fileName);

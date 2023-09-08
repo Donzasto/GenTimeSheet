@@ -5,18 +5,16 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 
-WordValidation wordValidation = new();
+Validation validation = new();
 
-wordValidation.CheckDaysInMonth();
-wordValidation.CheckWeekendsColor();
-wordValidation.CheckXsCount();
-wordValidation.CheckWeekendsWithEights();
-wordValidation.CheckFirstDay();
-wordValidation.CheckOrderXand8();
+validation.CheckDaysInMonth();
+validation.CheckWeekendsColor();
+validation.CheckXsCount();
+validation.CheckWeekendsWithEights();
+validation.CheckFirstDay();
+validation.CheckOrderXand8();
 
-string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-string file = Path.Combine(currentDirectory, @"../../../static/" + "1.xlsx");
-string docName = Path.GetFullPath(file);
+string docName = Validation.GetFilePath("1.xlsx");
 
 UpdateCell(docName);
 
@@ -35,10 +33,12 @@ void UpdateCell(string docName)
 
     var namesColumn = worksheet.Descendants<Row>().Select(row => row.Elements<Cell>().ElementAt(1));
 
-    DocumentFormat.OpenXml.Wordprocessing.Table table = wordValidation.Table1;
+    IEnumerable<TableRow> table = validation.Table1.Elements<TableRow>().Skip(1);
 
     var sst = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First().
         SharedStringTable;
+
+    var u = sst.ChildElements;
 
     foreach (var cell in namesColumn)
     {
@@ -46,12 +46,12 @@ void UpdateCell(string docName)
         {
             int ssid = int.Parse(cell.InnerText);
 
-            string text = sst.ChildElements[ssid].InnerText;
+            string name = sst.ChildElements[ssid].InnerText;
 
             int rowIndex = int.Parse(Regex.Match(cell.CellReference, @"\d+").Value) - 1;
 
-            IEnumerable<TableRow> personalDays = table.Elements<TableRow>().Where(row =>
-                string.Compare(row.Elements<TableCell>().ElementAt(1).InnerText, text,
+            IEnumerable<TableRow> personalDays = table.Where(row =>
+                string.Compare(row.Elements<TableCell>().ElementAt(1).InnerText, name,
                 CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols) == 0);
 
             if (!personalDays.Any())
@@ -61,50 +61,77 @@ void UpdateCell(string docName)
 
             var days = personalDays.First();
 
-            int count = days.Count();
+            int countDays = days.Count();
 
-            for (int i = 0, cellIndex = 0; i < count; i++, cellIndex++)
+
+            if (validation.NamesWorkedLastDayMonth.
+                Contains(Regex.Replace(name, @"\s+", string.Empty)))
+            {
+                FillCells(4, sheetData, rowIndex);
+            }
+
+            for (int i = 0, cellIndex = 0; i < countDays; i++, cellIndex++)
             {
                 const int passColumn = 19;
 
                 if (cellIndex == passColumn)
                     cellIndex++;
 
-                if (days.ElementAt(i).InnerText.Trim() is WordValidation.RU_X or WordValidation.EN_X)
+
+                if (days.ElementAt(i).InnerText.Trim() is Validation.RU_X or Validation.EN_X)
                 {
-                    FIllCell(cellIndex, sheetData, rowIndex, "Ф", CellValues.String);
-                    FIllCell(cellIndex, sheetData, rowIndex + 1, "16", CellValues.Number);
-                    FIllCell(cellIndex, sheetData, rowIndex + 2, "2", CellValues.Number);
+                    FillCell(cellIndex, sheetData, rowIndex, "Ф", CellValues.String);
+                    FillCell(cellIndex, sheetData, rowIndex + 1, "16", CellValues.Number);
+                    FillCell(cellIndex, sheetData, rowIndex + 2, "2", CellValues.Number);
 
                     if (cellIndex + 1 == passColumn)
                         cellIndex++;
 
-                    if (cellIndex == count)
+                    if (cellIndex == countDays)
                         break;
 
-                    FIllCell(cellIndex + 1, sheetData, rowIndex, "Ф", CellValues.String);
-                    FIllCell(cellIndex + 1, sheetData, rowIndex + 1, "8", CellValues.Number);
-                    FIllCell(cellIndex + 1, sheetData, rowIndex + 2, "6", CellValues.Number);
+                    FillCells(cellIndex + 1, sheetData, rowIndex);
 
-                    if (cellIndex + 1 == 19)
+                    if (cellIndex + 1 == passColumn)
                         cellIndex--;
                 }
                 else if (days.ElementAt(i).InnerText.Trim() is "О")
                 {
-                    FIllCell(cellIndex, sheetData, rowIndex, "О", CellValues.String);
+                    FillCell(cellIndex, sheetData, rowIndex, "О", CellValues.String);
                 }
                 else if (days.ElementAt(i).InnerText.Trim() is "Б")
                 {
-                    FIllCell(cellIndex, sheetData, rowIndex, "Б", CellValues.String);
+                    FillCell(cellIndex, sheetData, rowIndex, "Б", CellValues.String);
                 }
             }
+
+            RecalculateFormuls(19, sheetData, rowIndex);
+            RecalculateFormuls(35, sheetData, rowIndex);
         }
     }
 }
 
-void FIllCell(int cellIndex, SheetData sheetData, int rowIndex, string text, EnumValue<CellValues> dataType)
+void FillCells(int cellIndex, SheetData sheetData, int rowIndex)
+{
+    FillCell(4, sheetData, rowIndex, "Ф", CellValues.String);
+    FillCell(4, sheetData, rowIndex + 1, "8", CellValues.Number);
+    FillCell(4, sheetData, rowIndex + 2, "6", CellValues.Number);
+}
+
+void FillCell(int cellIndex, SheetData sheetData, int rowIndex, string text,
+    EnumValue<CellValues> dataType)
 {
     IEnumerable<Cell> cells = sheetData.Elements<Row>().ElementAt(rowIndex).Elements<Cell>();
-    cells.ElementAt(cellIndex).DataType = dataType;
-    cells.ElementAt(cellIndex).CellValue = new CellValue() { Text = text };
+    Cell cell = cells.ElementAt(cellIndex);
+    cell.DataType = dataType;
+    cell.CellValue = new CellValue() { Text = text };
+}
+
+void RecalculateFormuls(int cellIndex, SheetData sheetData, int rowIndex)
+{
+    Row row = sheetData.Elements<Row>().ElementAt(rowIndex + 1);
+    row.Elements<Cell>().ElementAt(cellIndex).CellValue?.Remove();
+
+    row = sheetData.Elements<Row>().ElementAt(rowIndex + 2);
+    row.Elements<Cell>().ElementAt(cellIndex).CellValue?.Remove();
 }
