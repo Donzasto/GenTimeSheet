@@ -14,13 +14,13 @@ validation.CheckWeekendsWithEights();
 validation.CheckFirstDay();
 validation.CheckOrderXand8();
 
-string docName = Validation.GetFilePath("1.xlsx");
+string filepath = Validation.GetFilePath("1.xlsx");
 
-UpdateCell(docName);
+UpdateCells(filepath);
 
-void UpdateCell(string docName)
+void UpdateCells(string filepath)
 {
-    using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(docName, true);
+    using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true);
 
     string id = spreadSheet.WorkbookPart.Workbook.GetFirstChild<Sheets>().GetFirstChild<Sheet>().
         Id.Value;
@@ -31,14 +31,15 @@ void UpdateCell(string docName)
 
     SheetData sheetData = worksheet.Elements<SheetData>().First();
 
-    var namesColumn = worksheet.Descendants<Row>().Select(row => row.Elements<Cell>().ElementAt(1));
+    IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
+        row.Elements<Cell>().ElementAt(1));
 
     IEnumerable<TableRow> table = validation.Table1.Elements<TableRow>().Skip(1);
 
-    var sst = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First().
-        SharedStringTable;
+    SharedStringTable sst = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().
+        First().SharedStringTable;
 
-    var u = sst.ChildElements;
+    const int passColumn = 19;
 
     foreach (var cell in namesColumn)
     {
@@ -59,10 +60,9 @@ void UpdateCell(string docName)
                 continue;
             }
 
-            var days = personalDays.First();
+            TableRow days = personalDays.First();
 
             int countDays = days.Count();
-
 
             if (validation.NamesWorkedLastDayMonth.
                 Contains(Regex.Replace(name, @"\s+", string.Empty)))
@@ -72,11 +72,9 @@ void UpdateCell(string docName)
 
             for (int i = 0, cellIndex = 0; i < countDays; i++, cellIndex++)
             {
-                const int passColumn = 19;
 
                 if (cellIndex == passColumn)
                     cellIndex++;
-
 
                 if (days.ElementAt(i).InnerText.Trim() is Validation.RU_X or Validation.EN_X)
                 {
@@ -122,6 +120,7 @@ void FillCell(int cellIndex, SheetData sheetData, int rowIndex, string text,
     EnumValue<CellValues> dataType)
 {
     IEnumerable<Cell> cells = sheetData.Elements<Row>().ElementAt(rowIndex).Elements<Cell>();
+
     Cell cell = cells.ElementAt(cellIndex);
     cell.DataType = dataType;
     cell.CellValue = new CellValue() { Text = text };
