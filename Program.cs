@@ -1,21 +1,20 @@
-﻿using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
-Stopwatch stopwatch = new Stopwatch();
-stopwatch.Start();
+
 Validation validation = new();
 
 validation.ValidateDocx();
 
 string filepath = Validation.GetFilePath("1.xlsx");
+
 IEnumerable<IEnumerable<Cell>> tableSheet;
+
 UpdateCells(filepath);
-stopwatch.Stop();
-System.Console.WriteLine(stopwatch.ElapsedMilliseconds);
+
 void UpdateCells(string filepath)
 {
     using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true);

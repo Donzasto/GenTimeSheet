@@ -1,10 +1,8 @@
 using System.Globalization;
-using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.VisualBasic;
 
 internal class Validation
 {
