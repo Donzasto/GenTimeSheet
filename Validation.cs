@@ -1,15 +1,13 @@
 using System.Globalization;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using Microsoft.VisualBasic;
 
 internal class Validation
 {
-    internal const string RU_X = "Х";
-    internal const string EN_X = "X";
-    internal const string EIGHT = "8";
-
     private readonly string _filePath1;
     private readonly string _filePath2;
 
@@ -38,10 +36,20 @@ internal class Validation
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
 
+    internal void ValidateDocx()
+    {
+        CheckDaysInMonth();
+        CheckWeekendsColor();
+        CheckXsCount();
+        CheckWeekendsWithEights();
+        CheckFirstDay();
+        CheckOrderXand8();
+    }
+
     private static string[] GetStringsFromParagraph(string filePath1) =>
         GetFirstParagraph(filePath1).InnerText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-    internal void CheckDaysInMonth()
+    private void CheckDaysInMonth()
     {
         string? lastDayMonth = Table1.Elements<TableRow>().First().Elements<TableCell>().Last().
             InnerText;
@@ -52,7 +60,7 @@ internal class Validation
             Console.WriteLine("days in month");
     }
 
-    internal void CheckWeekendsColor()
+    private void CheckWeekendsColor()
     {
         bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
@@ -63,34 +71,34 @@ internal class Validation
             Console.WriteLine("weekends color");
     }
 
-    internal void CheckXsCount()
+    private void CheckXsCount()
     {
         IEnumerable<List<TableCell>> rows = Table1.Elements<TableRow>().Select(cell =>
             cell.Elements<TableCell>().Skip(3).ToList());
 
         for (int i = 0; i < rows.First().Count; i++)
         {
-            if (rows.Count(days => days[i].InnerText.EqualsOneOf(RU_X, EN_X)) is not (2 or 3))
+            if (rows.Count(days => days[i].InnerText.EqualsOneOf(Constants.RU_X, Constants.EN_X)) is not (2 or 3))
                 Console.WriteLine($"day {i + 1}");
         }
     }
 
-    internal void CheckWeekendsWithEights()
+    private void CheckWeekendsWithEights()
     {
         bool hasWeekendsWithEights = Table1.Elements<TableRow>().ElementAt(3).
             Elements<TableCell>().Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).
-            Shading is not null && cells.InnerText.EqualsOneOf(EIGHT));
+            Shading is not null && cells.InnerText.EqualsOneOf(Constants.EIGHT));
 
         if (hasWeekendsWithEights)
             Console.WriteLine("weekend with eights");
     }
 
-    internal void CheckFirstDay()
+    private void CheckFirstDay()
     {
         bool hasIncorrectFirstDay = NamesWorkedLastDayMonth.
             Intersect(Table1.Elements<TableRow>().
             Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText.
-            EqualsOneOf(RU_X, EN_X, EIGHT)).
+            EqualsOneOf(Constants.RU_X, Constants.EN_X, Constants.EIGHT)).
             Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText.Replace(" ", ""))).
             Any();
 
@@ -98,19 +106,19 @@ internal class Validation
             Console.WriteLine("first day");
     }
 
-    internal IEnumerable<string> GetNamesWorkedLastDayMonth() => _table2.Elements<TableRow>().
-            Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(RU_X, EN_X)).
+    private IEnumerable<string> GetNamesWorkedLastDayMonth() => _table2.Elements<TableRow>().
+            Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(Constants.RU_X, Constants.EN_X)).
             Select(rows => Regex.Replace(rows.Elements<TableCell>().ElementAt(1).InnerText, @"\s+",
-                string.Empty));
+                string.Empty)).ToArray();
 
-    internal void CheckOrderXand8()
+    private void CheckOrderXand8()
     {
         var days = Table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
 
         for (int i = 3; i < days.Length - 1; i++)
         {
-            if (days[i].EqualsOneOf(RU_X, EN_X) && days[i + 1].EqualsOneOf(EIGHT))
+            if (days[i].EqualsOneOf(Constants.RU_X, Constants.EN_X) && days[i + 1].EqualsOneOf(Constants.EIGHT))
                 Console.WriteLine("X and eight");
         }
     }

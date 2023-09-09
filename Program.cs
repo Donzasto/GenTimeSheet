@@ -1,23 +1,21 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
-
+Stopwatch stopwatch = new Stopwatch();
+stopwatch.Start();
 Validation validation = new();
 
-validation.CheckDaysInMonth();
-validation.CheckWeekendsColor();
-validation.CheckXsCount();
-validation.CheckWeekendsWithEights();
-validation.CheckFirstDay();
-validation.CheckOrderXand8();
+validation.ValidateDocx();
 
 string filepath = Validation.GetFilePath("1.xlsx");
-
+IEnumerable<IEnumerable<Cell>> tableSheet;
 UpdateCells(filepath);
-
+stopwatch.Stop();
+System.Console.WriteLine(stopwatch.ElapsedMilliseconds);
 void UpdateCells(string filepath)
 {
     using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true);
@@ -29,8 +27,6 @@ void UpdateCells(string filepath)
 
     Worksheet worksheet = worksheetPart.Worksheet;
 
-    SheetData sheetData = worksheet.Elements<SheetData>().First();
-
     IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
         row.Elements<Cell>().ElementAt(1));
 
@@ -39,10 +35,15 @@ void UpdateCells(string filepath)
     SharedStringTable sst = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().
         First().SharedStringTable;
 
-    const int passColumn = 19;
+
+    tableSheet = worksheet.Elements<SheetData>().First().
+        Elements<Row>().Select(row => row.Elements<Cell>().Skip(4).Take(15).
+        Concat(row.Elements<Cell>().Skip(19).Take(33))).ToArray();
 
     foreach (var cell in namesColumn)
     {
+        int formulsColumn = 15;
+
         if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
         {
             int ssid = int.Parse(cell.InnerText);
@@ -60,77 +61,77 @@ void UpdateCells(string filepath)
                 continue;
             }
 
-            TableRow days = personalDays.First();
-
-            int countDays = days.Count();
+            var days = personalDays.First();
 
             if (validation.NamesWorkedLastDayMonth.
                 Contains(Regex.Replace(name, @"\s+", string.Empty)))
             {
-                FillCells(4, sheetData, rowIndex);
+                SetCells(0, rowIndex);
             }
 
-            for (int i = 0, cellIndex = 0; i < countDays; i++, cellIndex++)
-            {
+            var eventDays = days.Skip(4).Select((Value, Number) => new { Value, Number }).
+                Where(cell => cell.Value.InnerText.Any());
 
-                if (cellIndex == passColumn)
+            int daysCount = days.Count() - 4;
+
+            foreach (var day in eventDays)
+            {
+                int cellIndex = day.Number;
+                string innerText = day.Value.InnerText;
+
+                if (cellIndex >= formulsColumn)
                     cellIndex++;
 
-                if (days.ElementAt(i).InnerText.Trim() is Validation.RU_X or Validation.EN_X)
+                if (innerText is Constants.RU_X or Constants.EN_X)
                 {
-                    FillCell(cellIndex, sheetData, rowIndex, "Ф", CellValues.String);
-                    FillCell(cellIndex, sheetData, rowIndex + 1, "16", CellValues.Number);
-                    FillCell(cellIndex, sheetData, rowIndex + 2, "2", CellValues.Number);
+                    SetCell(cellIndex, rowIndex, Constants.RU_F, CellValues.String);
+                    SetCell(cellIndex, rowIndex + 1, Constants.SIXTEEN, CellValues.Number);
+                    SetCell(cellIndex, rowIndex + 2, Constants.TWO, CellValues.Number);
 
-                    if (cellIndex + 1 == passColumn)
-                        cellIndex++;
-
-                    if (cellIndex == countDays)
+                    if (cellIndex == daysCount)
                         break;
 
-                    FillCells(cellIndex + 1, sheetData, rowIndex);
-
-                    if (cellIndex + 1 == passColumn)
-                        cellIndex--;
+                    SetCells(cellIndex + 1, rowIndex);
                 }
-                else if (days.ElementAt(i).InnerText.Trim() is "О")
+                else if (innerText.Trim() is Constants.RU_O or Constants.EN_O)
                 {
-                    FillCell(cellIndex, sheetData, rowIndex, "О", CellValues.String);
+                    SetCell(cellIndex, rowIndex, Constants.RU_O, CellValues.String);
                 }
-                else if (days.ElementAt(i).InnerText.Trim() is "Б")
+                else if (innerText.Trim() is Constants.RU_B)
                 {
-                    FillCell(cellIndex, sheetData, rowIndex, "Б", CellValues.String);
+                    SetCell(cellIndex, rowIndex, Constants.RU_B, CellValues.String);
                 }
             }
 
-            RecalculateFormuls(19, sheetData, rowIndex);
-            RecalculateFormuls(35, sheetData, rowIndex);
+            RecalculateFormuls(formulsColumn, rowIndex);
+            formulsColumn = 31;
+            RecalculateFormuls(formulsColumn, rowIndex);
         }
     }
 }
 
-void FillCells(int cellIndex, SheetData sheetData, int rowIndex)
+void SetCells(int cellIndex, int rowIndex)
 {
-    FillCell(4, sheetData, rowIndex, "Ф", CellValues.String);
-    FillCell(4, sheetData, rowIndex + 1, "8", CellValues.Number);
-    FillCell(4, sheetData, rowIndex + 2, "6", CellValues.Number);
+    SetCell(cellIndex, rowIndex, Constants.RU_F, CellValues.String);
+    SetCell(cellIndex, rowIndex + 1, Constants.EIGHT, CellValues.Number);
+    SetCell(cellIndex, rowIndex + 2, Constants.SIX, CellValues.Number);
 }
 
-void FillCell(int cellIndex, SheetData sheetData, int rowIndex, string text,
+void SetCell(int cellIndex, int rowIndex, string text,
     EnumValue<CellValues> dataType)
 {
-    IEnumerable<Cell> cells = sheetData.Elements<Row>().ElementAt(rowIndex).Elements<Cell>();
+    IEnumerable<Cell> cells = tableSheet.Select(row => row).ElementAt(rowIndex);
 
     Cell cell = cells.ElementAt(cellIndex);
     cell.DataType = dataType;
     cell.CellValue = new CellValue() { Text = text };
 }
 
-void RecalculateFormuls(int cellIndex, SheetData sheetData, int rowIndex)
+void RecalculateFormuls(int cellIndex, int rowIndex)
 {
-    Row row = sheetData.Elements<Row>().ElementAt(rowIndex + 1);
-    row.Elements<Cell>().ElementAt(cellIndex).CellValue?.Remove();
+    IEnumerable<Cell> cells = tableSheet.Select(row => row).ElementAt(rowIndex + 1);
+    cells.ElementAt(cellIndex).CellValue?.Remove();
 
-    row = sheetData.Elements<Row>().ElementAt(rowIndex + 2);
-    row.Elements<Cell>().ElementAt(cellIndex).CellValue?.Remove();
+    cells = tableSheet.Select(row => row).ElementAt(rowIndex + 2);
+    cells.ElementAt(cellIndex).CellValue?.Remove();
 }
