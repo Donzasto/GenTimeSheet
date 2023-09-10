@@ -31,8 +31,8 @@ void UpdateCells(string filepath)
 
     IEnumerable<TableRow> table = validation.Table1.Elements<TableRow>().Skip(1);
 
-    SharedStringTable sst = spreadSheet.WorkbookPart.GetPartsOfType<SharedStringTablePart>().
-        First().SharedStringTable;
+    SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
+        GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
     tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
         Select(row => row.Elements<Cell>().Skip(4).Take(15).
@@ -46,7 +46,7 @@ void UpdateCells(string filepath)
         {
             int ssid = int.Parse(cell.InnerText);
 
-            string name = sst.ChildElements[ssid].InnerText;
+            string name = sharedStringTable.ChildElements[ssid].InnerText;
 
             int rowIndex = int.Parse(Regex.Match(cell.CellReference, @"\d+").Value) - 1;
 
