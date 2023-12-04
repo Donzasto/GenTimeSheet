@@ -114,6 +114,9 @@ internal class Validation
         var days = Table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
 
+        if(days.All(cell => cell != Constants.EIGHT))
+            Console.WriteLine("eights is empty");
+
         for (int i = 3; i < days.Length - 1; i++)
         {
             if (days[i].EqualsOneOf(Constants.RU_X, Constants.EN_X) && days[i + 1].EqualsOneOf(Constants.EIGHT))
