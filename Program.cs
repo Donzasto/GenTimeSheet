@@ -61,8 +61,12 @@ void UpdateCells(string filepath)
 
             TableRow days = personalDays.First();
 
+            bool firstDayIsNotB = days.Skip(4).First().InnerText != Constants.RU_B;
+            bool lastDayIsNotB = days.Skip(days.Count() - 1).First().InnerText != Constants.RU_B;
+
             if (validation.NamesWorkedLastDayMonth.
-                Contains(Regex.Replace(name, @"\s+", string.Empty)))
+                Contains(Regex.Replace(name, @"\s+", string.Empty)) &&
+                firstDayIsNotB && lastDayIsNotB)
             {
                 SetCells(0, rowIndex);
             }
