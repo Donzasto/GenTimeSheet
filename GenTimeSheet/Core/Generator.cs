@@ -12,14 +12,12 @@ namespace GenTimeSheet.Core;
 
 internal class Generator
 {
-    //await Web.GetAsync();
-
     Validation validation = new();
 
     IEnumerable<IEnumerable<Cell>> tableSheet;
 
     public Generator()
-    {
+    {        
         validation.ValidateDocx();
 
         string filepath = Validation.GetFilePath("1.xlsx");

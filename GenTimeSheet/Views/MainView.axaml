@@ -12,5 +12,5 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-	<Button Command="{Binding ClickStart}" HorizontalAlignment="Center">Start</Button>
+	<ListBox ItemsSource="{Binding Items}"></ListBox>
 </UserControl>
