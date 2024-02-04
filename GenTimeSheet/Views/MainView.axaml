@@ -12,5 +12,5 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-	<ListBox ItemsSource="{Binding Items}"></ListBox>
+	<ListBox ItemsSource="{Binding Holidays}"></ListBox>
 </UserControl>

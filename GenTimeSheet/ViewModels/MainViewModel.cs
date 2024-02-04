@@ -11,7 +11,7 @@ public partial class MainViewModel : ViewModelBase
     private Generator _generator = new();
 
     [ObservableProperty]
-    private List<string> _holidays;
+    private List<string>? _holidays;
 
     public Task Initialization { get; private set; }
 
