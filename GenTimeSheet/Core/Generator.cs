@@ -22,7 +22,9 @@ internal class Generator
 
     public void UpdateCells()
     {
-        using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(_validation.FilePath1, true);
+        string filePath = FileHandler.GetFilePath("1.xlsx");
+
+        using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filePath, true);
 
         string id = spreadSheet.WorkbookPart.Workbook.GetFirstChild<Sheets>().GetFirstChild<Sheet>().
             Id.Value;
