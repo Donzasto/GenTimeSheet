@@ -93,7 +93,9 @@ internal class Generator
 
                     if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X))
                     {
-                        SetCell(cellIndex, rowIndex, Constants.RU_F, CellValues.String);
+                        string dayStatus = GetDayStatus(cellIndex);
+
+                        SetCell(cellIndex, rowIndex, dayStatus, CellValues.String);
                         SetCell(cellIndex, rowIndex + 1, Constants.SIXTEEN, CellValues.Number);
                         SetCell(cellIndex, rowIndex + 2, Constants.TWO, CellValues.Number);
 
@@ -109,10 +111,6 @@ internal class Generator
                     {
                         SetCell(cellIndex, rowIndex, Constants.RU_O, CellValues.String);
                     }
-                    else if (innerText.EqualsOneOf(Constants.RU_B))
-                    {
-                        SetCell(cellIndex, rowIndex, Constants.RU_B, CellValues.String);
-                    }
                 }
 
                 RecalculateFormuls(formulsColumn, rowIndex);
@@ -122,14 +120,28 @@ internal class Generator
         }
     }
 
-    void SetCells(int cellIndex, int rowIndex)
+    private string GetDayStatus(int dayIndex)
     {
-        SetCell(cellIndex, rowIndex, Constants.RU_F, CellValues.String);
+        string dayStatus = Constants.RU_F;
+
+        if (_validation.Holidays.Contains(dayIndex))
+        {
+            dayStatus = Constants.RU_RP;
+        }
+
+        return dayStatus;
+    }
+
+    private void SetCells(int cellIndex, int rowIndex)
+    {
+        string cellContent = GetDayStatus(cellIndex);
+
+        SetCell(cellIndex, rowIndex, cellContent, CellValues.String);
         SetCell(cellIndex, rowIndex + 1, Constants.EIGHT, CellValues.Number);
         SetCell(cellIndex, rowIndex + 2, Constants.SIX, CellValues.Number);
     }
 
-    void SetCell(int cellIndex, int rowIndex, string text,
+    private void SetCell(int cellIndex, int rowIndex, string text,
         EnumValue<CellValues> dataType)
     {
         IEnumerable<Cell> cells = _tableSheet.Select(row => row).ElementAt(rowIndex);
@@ -139,7 +151,7 @@ internal class Generator
         cell.CellValue = new CellValue() { Text = text };
     }
 
-    void RecalculateFormuls(int cellIndex, int rowIndex)
+    private void RecalculateFormuls(int cellIndex, int rowIndex)
     {
         IEnumerable<Cell> cells = _tableSheet.Select(row => row).ElementAt(rowIndex + 1);
         cells.ElementAt(cellIndex).CellValue?.Remove();
@@ -147,5 +159,4 @@ internal class Generator
         cells = _tableSheet.Select(row => row).ElementAt(rowIndex + 2);
         cells.ElementAt(cellIndex).CellValue?.Remove();
     }
-
 }

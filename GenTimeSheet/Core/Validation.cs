@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -22,13 +21,14 @@ internal class Validation
 
     internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
 
-    private readonly List<string> _holidays;
+    private readonly List<string> _holidaysParagraphs;
 
-    internal List<string> ValidationErrors = new List<string>();
+    internal List<string> ValidationErrors = [];
+    internal List<int> Holidays { get; private set; }
 
-    internal Validation(List<string> holidays)
+    internal Validation(List<string> holidaysParagraphs)
     {
-        _holidays = holidays;
+        _holidaysParagraphs = holidaysParagraphs;
 
         //TODO async
         _filePath1 = FileHandler.GetFilePath("1.docx");
@@ -72,13 +72,13 @@ internal class Validation
 
     private void CheckWeekendsColor()
     {
-        List<int> holidays =  GetMonthsHolidays();
+        Holidays =  GetMonthsHolidays();
 
         bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
             (new DateOnly(_year, _month, int.Parse(cells.InnerText)).
             DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday) ||
-            !holidays.Contains(int.Parse(cells.InnerText))));
+            !Holidays.Contains(int.Parse(cells.InnerText))));
 
         if (HasIncorrectWeekendsColor)
             ValidationErrors.Add("weekends color");
@@ -90,11 +90,11 @@ internal class Validation
 
         var dates = new List<int>();
 
-        foreach (var h in _holidays)
+        foreach (var paragraph in _holidaysParagraphs)
         {
-            if (h.Contains(monthGenitiveNames))
+            if (paragraph.Contains(monthGenitiveNames))
             {
-                string[] s = h.Replace("<p>", "").Replace(",", "").Split(" ");
+                string[] s = paragraph.Replace("<p>", "").Replace(",", "").Split(" ");
 
                 foreach (var item in s)
                 {

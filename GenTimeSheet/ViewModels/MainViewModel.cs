@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using GenTimeSheet.Core;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using GenTimeSheet.Core;
 
 namespace GenTimeSheet.ViewModels;
 
@@ -47,6 +47,5 @@ public partial class MainViewModel : ViewModelBase
         var generator = new Generator(validation);
 
         generator.UpdateCells();
-
     }
 }

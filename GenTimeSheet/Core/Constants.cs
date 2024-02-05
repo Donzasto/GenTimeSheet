@@ -10,4 +10,5 @@ internal static class Constants
     internal const string SIX = "6";
     internal const string EIGHT = "8";
     internal const string SIXTEEN = "16";
+    internal const string RU_RP = "РП";
 }
