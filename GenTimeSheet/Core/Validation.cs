@@ -7,10 +7,11 @@ using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
+using GenTimeSheet.Core;
 
 internal class Validation
 {
-    private readonly string _filePath1;
+    internal readonly string FilePath1;
     private readonly string _filePath2;
 
     private readonly int _month;
@@ -23,17 +24,18 @@ internal class Validation
 
     public Validation()
     {
-        _filePath1 = GetFilePath("1.docx");
-        _filePath2 = GetFilePath("2.docx");
+        //TODO async
+        FilePath1 = FileHandler.GetFilePath("1.docx");
+        _filePath2 = FileHandler.GetFilePath("2.docx");
 
-        Table1 = GetLastTable(_filePath1);
+        Table1 = GetLastTable(FilePath1);
         _table2 = GetLastTable(_filePath2);
 
-        string monthName = GetStringsFromParagraph(_filePath1)[^3];
+        string monthName = GetStringsFromParagraph(FilePath1)[^3];
 
         _month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
 
-        _year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);
+        _year = int.Parse(GetStringsFromParagraph(FilePath1)[^2]);
 
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
@@ -45,7 +47,7 @@ internal class Validation
         CheckXsCount();
         CheckWeekendsWithEights();
         CheckFirstDay();
-        CheckOrderXand8();
+        CheckOrderXsAndEights();
     }
 
     private static string[] GetStringsFromParagraph(string filePath1) =>
@@ -113,7 +115,7 @@ internal class Validation
             Select(rows => Regex.Replace(rows.Elements<TableCell>().ElementAt(1).InnerText, @"\s+",
                 string.Empty)).ToArray();
 
-    private void CheckOrderXand8()
+    private void CheckOrderXsAndEights()
     {
         var days = Table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
@@ -143,15 +145,6 @@ internal class Validation
 
     private static IEnumerable<T> GetElements<T>(string filePath) where T : OpenXmlElement =>
         GetBody(filePath).Elements<T>();
-
-    internal static string GetFilePath(string fileName)
-    {
-        string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        string file = Path.Combine(currentDirectory, @"../../../../GenTimeSheet/static/" + fileName);
-        string filePath = Path.GetFullPath(file);
-
-        return filePath;
-    }
 }
 
 public static class StringExtension

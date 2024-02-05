@@ -16,8 +16,6 @@ namespace GenTimeSheet
 
         internal static async Task<List<string>> GetHolidays()
         {
-           await Task.Delay(5000);
-
             using HttpResponseMessage response = await sharedClient.GetAsync("2024/");
 
             var stringResponse = await response.Content.ReadAsStringAsync();

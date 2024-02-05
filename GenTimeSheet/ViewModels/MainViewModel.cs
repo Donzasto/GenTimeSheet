@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using GenTimeSheet.Core;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace GenTimeSheet.ViewModels;
@@ -35,16 +35,12 @@ public partial class MainViewModel : ViewModelBase
 
     public void ClickStart()
     {
-        /*var generator = new Generator();
+        var  validation = new Validation();
 
-        if (generator != null)
-        {
-            Debug.WriteLine("sdf");
-        }*/
+        validation.ValidateDocx();
 
-        if (Initialization != null)
-        {
-            Debug.WriteLine("init not null");
-        }
+        var generator = new Generator(validation);
+
+        generator.UpdateCells();
     }
 }

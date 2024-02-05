@@ -6,28 +6,23 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
-using GenTimeSheet;
 
 namespace GenTimeSheet.Core;
 
 internal class Generator
 {
-    Validation validation = new();
+    private IEnumerable<IEnumerable<Cell>> _tableSheet;
 
-    IEnumerable<IEnumerable<Cell>> tableSheet;
+    private readonly Validation _validation;
 
-    public Generator()
-    {        
-        validation.ValidateDocx();
-
-        string filepath = Validation.GetFilePath("1.xlsx");
-
-        UpdateCells(filepath);
+    public Generator(Validation validation)
+    {
+        _validation = validation;
     }
 
-    void UpdateCells(string filepath)
+    public void UpdateCells()
     {
-        using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filepath, true);
+        using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(_validation.FilePath1, true);
 
         string id = spreadSheet.WorkbookPart.Workbook.GetFirstChild<Sheets>().GetFirstChild<Sheet>().
             Id.Value;
@@ -39,12 +34,12 @@ internal class Generator
         IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
             row.Elements<Cell>().ElementAt(1));
 
-        IEnumerable<TableRow> table = validation.Table1.Elements<TableRow>().Skip(1);
+        IEnumerable<TableRow> table = _validation.Table1.Elements<TableRow>().Skip(1);
 
         SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
             GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
-        tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
+        _tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
             Select(row => row.Elements<Cell>().Skip(4).Take(15).
             Concat(row.Elements<Cell>().Skip(19))).ToArray();
 
@@ -74,7 +69,7 @@ internal class Generator
                 bool firstDayIsNotB = days.Skip(4).First().InnerText != Constants.RU_B;
                 bool lastDayIsNotB = days.Skip(days.Count() - 1).First().InnerText != Constants.RU_B;
 
-                if (validation.NamesWorkedLastDayMonth.
+                if (_validation.NamesWorkedLastDayMonth.
                     Contains(Regex.Replace(name, @"\s+", string.Empty)) &&
                     firstDayIsNotB && lastDayIsNotB)
                 {
@@ -135,7 +130,7 @@ internal class Generator
     void SetCell(int cellIndex, int rowIndex, string text,
         EnumValue<CellValues> dataType)
     {
-        IEnumerable<Cell> cells = tableSheet.Select(row => row).ElementAt(rowIndex);
+        IEnumerable<Cell> cells = _tableSheet.Select(row => row).ElementAt(rowIndex);
 
         Cell cell = cells.ElementAt(cellIndex);
         cell.DataType = dataType;
@@ -144,10 +139,10 @@ internal class Generator
 
     void RecalculateFormuls(int cellIndex, int rowIndex)
     {
-        IEnumerable<Cell> cells = tableSheet.Select(row => row).ElementAt(rowIndex + 1);
+        IEnumerable<Cell> cells = _tableSheet.Select(row => row).ElementAt(rowIndex + 1);
         cells.ElementAt(cellIndex).CellValue?.Remove();
 
-        cells = tableSheet.Select(row => row).ElementAt(rowIndex + 2);
+        cells = _tableSheet.Select(row => row).ElementAt(rowIndex + 2);
         cells.ElementAt(cellIndex).CellValue?.Remove();
     }
 
