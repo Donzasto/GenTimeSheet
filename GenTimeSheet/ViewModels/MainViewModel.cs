@@ -13,6 +13,9 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _enabledStart;
 
+    [ObservableProperty]
+    private List<string> _validationErrors;
+
     public Task Initialization { get; private set; }
 
     public MainViewModel()
@@ -35,12 +38,15 @@ public partial class MainViewModel : ViewModelBase
 
     public void ClickStart()
     {
-        var  validation = new Validation();
+        var  validation = new Validation(_holidays);
 
         validation.ValidateDocx();
+
+        ValidationErrors = validation.ValidationErrors;
 
         var generator = new Generator(validation);
 
         generator.UpdateCells();
+
     }
 }

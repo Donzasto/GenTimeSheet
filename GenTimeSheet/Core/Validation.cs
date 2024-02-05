@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
@@ -11,7 +11,7 @@ using GenTimeSheet.Core;
 
 internal class Validation
 {
-    internal readonly string FilePath1;
+    private readonly string _filePath1;
     private readonly string _filePath2;
 
     private readonly int _month;
@@ -22,20 +22,26 @@ internal class Validation
 
     internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
 
-    public Validation()
+    private readonly List<string> _holidays;
+
+    internal List<string> ValidationErrors = new List<string>();
+
+    internal Validation(List<string> holidays)
     {
+        _holidays = holidays;
+
         //TODO async
-        FilePath1 = FileHandler.GetFilePath("1.docx");
+        _filePath1 = FileHandler.GetFilePath("1.docx");
         _filePath2 = FileHandler.GetFilePath("2.docx");
 
-        Table1 = GetLastTable(FilePath1);
+        Table1 = GetLastTable(_filePath1);
         _table2 = GetLastTable(_filePath2);
 
-        string monthName = GetStringsFromParagraph(FilePath1)[^3];
+        string monthName = GetStringsFromParagraph(_filePath1)[^3].ToLower();
 
         _month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
 
-        _year = int.Parse(GetStringsFromParagraph(FilePath1)[^2]);
+        _year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);
 
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
@@ -61,18 +67,46 @@ internal class Validation
         int daysInMonth = DateTime.DaysInMonth(_year, _month);
 
         if (int.Parse(lastDayMonth) != daysInMonth)
-            Console.WriteLine("days in month");
+            ValidationErrors.Add("days in month");
     }
 
     private void CheckWeekendsColor()
     {
+        List<int> holidays =  GetMonthsHolidays();
+
         bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
-            new DateOnly(_year, _month, int.Parse(cells.InnerText)).
-            DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday));
+            (new DateOnly(_year, _month, int.Parse(cells.InnerText)).
+            DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday) ||
+            !holidays.Contains(int.Parse(cells.InnerText))));
 
         if (HasIncorrectWeekendsColor)
-            Console.WriteLine("weekends color");
+            ValidationErrors.Add("weekends color");
+    }
+
+    private List<int> GetMonthsHolidays()
+    {
+        string monthGenitiveNames = DateTimeFormatInfo.CurrentInfo.MonthGenitiveNames[_month - 1];
+
+        var dates = new List<int>();
+
+        foreach (var h in _holidays)
+        {
+            if (h.Contains(monthGenitiveNames))
+            {
+                string[] s = h.Replace("<p>", "").Replace(",", "").Split(" ");
+
+                foreach (var item in s)
+                {
+                    if (int.TryParse(item, out int result))
+                    {
+                        dates.Add(result);
+                    }
+                }
+            }
+        }
+
+        return dates;
     }
 
     private void CheckXsCount()
@@ -83,7 +117,7 @@ internal class Validation
         for (int i = 0; i < rows.First().Count; i++)
         {
             if (rows.Count(days => days[i].InnerText.EqualsOneOf(Constants.RU_X, Constants.EN_X)) is not (2 or 3))
-                Console.WriteLine($"day {i + 1}");
+                ValidationErrors.Add($"day {i + 1}");
         }
     }
 
@@ -94,7 +128,7 @@ internal class Validation
             Shading is not null && cells.InnerText.EqualsOneOf(Constants.EIGHT));
 
         if (hasWeekendsWithEights)
-            Console.WriteLine("weekend with eights");
+            ValidationErrors.Add("weekend with eights");
     }
 
     private void CheckFirstDay()
@@ -107,7 +141,7 @@ internal class Validation
             Any();
 
         if (hasIncorrectFirstDay)
-            Console.WriteLine("first day");
+            ValidationErrors.Add("first day");
     }
 
     private IEnumerable<string> GetNamesWorkedLastDayMonth() => _table2.Elements<TableRow>().
@@ -121,12 +155,12 @@ internal class Validation
             Select(cell => cell.InnerText).ToArray();
 
         if(days.All(cell => cell != Constants.EIGHT))
-            Console.WriteLine("eights is empty");
+            ValidationErrors.Add("eights is empty");
 
         for (int i = 3; i < days.Length - 1; i++)
         {
             if (days[i].EqualsOneOf(Constants.RU_X, Constants.EN_X) && days[i + 1].EqualsOneOf(Constants.EIGHT))
-                Console.WriteLine("X and eight");
+                ValidationErrors.Add("X and eight");
         }
     }
 

@@ -13,6 +13,7 @@
 	</Design.DataContext>
 	<Grid RowDefinitions="*, Auto">
 		<ListBox ItemsSource="{Binding Holidays}" Grid.Row="0"></ListBox>
-		<Button IsEnabled="{Binding EnabledStart}" Command="{Binding ClickStart}" Grid.Row="1" HorizontalAlignment="Center">Start</Button>
+		<ListBox ItemsSource="{Binding ValidationErrors}" Grid.Row="1"></ListBox>
+		<Button IsEnabled="{Binding EnabledStart}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
 	</Grid>
 </UserControl>
