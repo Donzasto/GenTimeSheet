@@ -1,3 +1,5 @@
+namespace GenTimeSheet.Core;
+
 internal static class Constants
 {
     internal const string RU_X = "Х";

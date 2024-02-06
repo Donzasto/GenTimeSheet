@@ -11,10 +11,13 @@ public partial class MainViewModel : ViewModelBase
     private List<string>? _holidays;
 
     [ObservableProperty]
-    private bool _enabledStart;
+    private bool _isEnabledStart;
 
     [ObservableProperty]
     private List<string> _validationErrors;
+
+    [ObservableProperty]
+    private Dictionary<string, string[]> _weekends;
 
     public Task Initialization { get; private set; }
 
@@ -26,19 +29,20 @@ public partial class MainViewModel : ViewModelBase
     private async Task InitializeAsync()
     {
         Holidays = await Web.GetHolidays();
+        Weekends = await Web.GetWeekends();
     }
 
     partial void OnHolidaysChanged(List<string>? value)
     {
         if (value != null)
         {
-            EnabledStart = true;
+            IsEnabledStart = true;
         }
     }
 
     public void ClickStart()
     {
-        var  validation = new Validation(_holidays);
+        var validation = new Validation(_holidays);
 
         validation.ValidateDocx();
 

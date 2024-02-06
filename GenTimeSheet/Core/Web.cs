@@ -1,47 +1,86 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace GenTimeSheet
+namespace GenTimeSheet.Core;
+
+internal static class Web
 {
-    internal class Web
+    private static string[]? _response;
+
+    private static readonly HttpClient sharedClient = new()
     {
-        private static string[]? _strings;
+        BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvennye/"),
+    };
 
-        private static readonly HttpClient sharedClient = new()
+    private static async Task<string[]> GetResponse()
+    {
+        using HttpResponseMessage response = await sharedClient.GetAsync("2024/");
+
+        var stringResponse = await response.Content.ReadAsStringAsync();
+
+        _response = stringResponse.Split('\n');
+
+        return _response;
+    }
+
+    internal static async Task<List<string>> GetHolidays()
+    {
+        _response = await GetResponse();
+
+        int i = 0;
+
+        while (!_response[i].Contains("blockquote"))
         {
-            BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvennye/"),
-        };
+            i++;
+        }
 
-        internal static async Task<List<string>> GetHolidays()
+        var holidays = new List<string>();
+
+        while (!_response[i].Contains("/blockquote"))
         {
-            using HttpResponseMessage response = await sharedClient.GetAsync("2024/");
-
-            var stringResponse = await response.Content.ReadAsStringAsync();
-
-            _strings = stringResponse.Split('\n');
-
-            int i = 0;
-
-            while (!_strings[i].Contains("blockquote"))
+            if (_response[i].Contains("<p>"))
             {
-                i++;
+                holidays.Add(_response[i]);
             }
 
-            var holidays = new List<string>();
+            i++;
+        }
 
-            while (!_strings[i].Contains("/blockquote"))
+        return holidays;
+    }
+
+    internal async static Task<Dictionary<string, string[]>> GetWeekends()
+    {
+        _response = await GetResponse();
+
+        var weekends = new Dictionary<string, string[]>();
+
+        int monthIndex = 0;
+
+        for (int i = 0; i < _response.Length && monthIndex < 12; i++)
+        {
+            string month = DateTimeFormatInfo.CurrentInfo.MonthNames[monthIndex];
+
+            if (_response[i].Contains(month, StringComparison.OrdinalIgnoreCase))
             {
-                if (_strings[i].Contains("<p>"))
+                int datesHTMLStringIndex = i + 14;
+
+                string[] dates = _response[datesHTMLStringIndex].Split("weekend\">");
+
+                for (int j = 1; j < dates.Length; j++)
                 {
-                    holidays.Add(_strings[i]);
+                    dates[j] = dates[j].Remove(dates[j].IndexOf('<'));
                 }
 
-                i++;
-            }
+                weekends.Add(month, dates);
 
-            return holidays;
+                monthIndex++;
+            }
         }
+
+        return weekends;
     }
 }

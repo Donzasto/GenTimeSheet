@@ -11,9 +11,16 @@
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
 		<vm:MainViewModel />
 	</Design.DataContext>
-	<Grid RowDefinitions="*, Auto">
-		<ListBox ItemsSource="{Binding Holidays}" Grid.Row="0"></ListBox>
-		<ListBox ItemsSource="{Binding ValidationErrors}" Grid.Row="1"></ListBox>
-		<Button IsEnabled="{Binding EnabledStart}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
-	</Grid>
+	<TabControl>
+		<TabItem Header="Main">
+			<Grid RowDefinitions="*, Auto, Auto">
+				<ListBox ItemsSource="{Binding Holidays}" Grid.Row="0"></ListBox>
+				<ListBox ItemsSource="{Binding ValidationErrors}" Grid.Row="1"></ListBox>
+				<Button IsEnabled="{Binding IsEnabledStart}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
+			</Grid>
+		</TabItem>
+		<TabItem Header="Calendar">
+		</TabItem>
+	</TabControl>
+
 </UserControl>

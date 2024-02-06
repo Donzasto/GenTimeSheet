@@ -6,7 +6,8 @@ using System.Text.RegularExpressions;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using GenTimeSheet.Core;
+
+namespace GenTimeSheet.Core;
 
 internal class Validation
 {
@@ -30,7 +31,6 @@ internal class Validation
     {
         _holidaysParagraphs = holidaysParagraphs;
 
-        //TODO async
         _filePath1 = FileHandler.GetFilePath("1.docx");
         _filePath2 = FileHandler.GetFilePath("2.docx");
 
@@ -82,6 +82,16 @@ internal class Validation
 
         if (HasIncorrectWeekendsColor)
             ValidationErrors.Add("weekends color");
+    }
+
+    // TODO
+    private List<int> GetWeekends()
+    {
+        string monthName = DateTimeFormatInfo.CurrentInfo.MonthNames[_month - 1];
+
+        Web.GetWeekends();
+
+        return [];
     }
 
     private List<int> GetMonthsHolidays()
