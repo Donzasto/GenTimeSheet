@@ -12,73 +12,73 @@
 	<Grid Name="AnnualCalendarGrid" ColumnDefinitions="*, *, *, *" RowDefinitions="*, *, *">
 		<Grid Grid.Column="0" Grid.Row="0" RowDefinitions="auto, *">				
 			<Grid Grid.Row="0" RowDefinitions="*"><TextBlock Text="Январь" TextAlignment="Center"/></Grid>					
-			<Grid Name="January" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>			
+			<Grid Name="January" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>			
 		</Grid>
 		<Grid Grid.Column="1" Grid.Row="0" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Февраль" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="February" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="February" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="2" Grid.Row="0" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Март" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="March" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="March" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="3" Grid.Row="0" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Апрель" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="April" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="April" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="0" Grid.Row="1" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Май" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="May" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="May" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="1" Grid.Row="1" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Июнь" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="June" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="June" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="2" Grid.Row="1" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Июль" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="July" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="July" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="3" Grid.Row="1" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Август" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="August" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="August" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="0" Grid.Row="2" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Сентябрь" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="September" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="September" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="1" Grid.Row="2" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Октябрь" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="October" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="October" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="2" Grid.Row="2" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Ноябрь" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="November" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="November" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 		<Grid Grid.Column="3" Grid.Row="2" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Декабрь" TextAlignment="Center"/>
 			</Grid>
-			<Grid Name="December" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *"/>
+			<Grid Name="December" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>		
 		</Grid>
 </UserControl>

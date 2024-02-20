@@ -33,12 +33,9 @@ namespace GenTimeSheet.Controls
         private void PopulateDays(int monthNumber, string[] weekend)
         {
             int daysColumn = 7;
-            int daysRows = 6;
+            int daysRows = 7;
 
             var textblocks = new List<TextBlock>();
-
-            int days = DateTime.DaysInMonth(2024, monthNumber);
-            int count = 1;
 
             string[] dayNames = { "Ïí", "Âò", "Ñð", "×ò", "Ïò", "Ñá", "Âñ" };
 
@@ -49,6 +46,9 @@ namespace GenTimeSheet.Controls
                 textBlock.SetValue(Grid.RowProperty, 0);
                 textblocks.Add(textBlock);
             }
+
+            int daysInMonth = DateTime.DaysInMonth(2024, monthNumber);
+            int dayNumber = 1;
 
             int firstDayMonth = (int)new DateTime(2024, monthNumber, 1).DayOfWeek;
 
@@ -63,29 +63,29 @@ namespace GenTimeSheet.Controls
             {
                 for (; firstDayMonth < daysColumn; firstDayMonth++)
                 {
+                    if (dayNumber > daysInMonth)
+                    {
+                        break;
+                    }
+
                     var textBlock = new TextBlock
                     {
-                        Text = count.ToString()
+                        Text = dayNumber.ToString()
                     };
 
                     textBlock.SetValue(Grid.ColumnProperty, firstDayMonth);
                     textBlock.SetValue(Grid.RowProperty, j);
 
-                    if (weekend.Contains(count.ToString()))
+                    if (weekend.Contains(dayNumber.ToString()))
                     {
                         textBlock.Classes.Add("weekend");
                     }
 
-                    count++;
+                    textblocks.Add(textBlock);                    
 
-                    textblocks.Add(textBlock);
-
-                    if (count > days)
-                    {
-                        break;
-                    }
-
+                    dayNumber++;
                 }
+
                 firstDayMonth = 0;
             }
 
