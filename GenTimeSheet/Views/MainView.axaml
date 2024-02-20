@@ -5,7 +5,8 @@
              xmlns:vm="clr-namespace:GenTimeSheet.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="GenTimeSheet.Views.MainView"
-             x:DataType="vm:MainViewModel">
+             x:DataType="vm:MainViewModel"
+			 xmlns:controls="clr-namespace:GenTimeSheet.Controls">
 	<Design.DataContext>
 		<!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
@@ -20,6 +21,9 @@
 			</Grid>
 		</TabItem>
 		<TabItem Header="Calendar">
+			<Grid RowDefinitions="*">
+				<controls:AnnualCalendar/>
+			</Grid>
 		</TabItem>
 	</TabControl>
 
