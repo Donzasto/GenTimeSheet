@@ -17,7 +17,7 @@
 			<Grid RowDefinitions="*, Auto, Auto">
 				<ListBox ItemsSource="{Binding Holidays}" Grid.Row="0"></ListBox>
 				<ListBox ItemsSource="{Binding ValidationErrors}" Grid.Row="1"></ListBox>
-				<Button IsEnabled="{Binding IsEnabledStart}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
+				<Button Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
 			</Grid>
 		</TabItem>
 		<TabItem Header="Calendar">

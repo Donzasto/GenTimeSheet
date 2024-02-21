@@ -1,5 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using DocumentFormat.OpenXml.Spreadsheet;
+using GenTimeSheet.Core;
 using GenTimeSheet.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -14,24 +16,23 @@ namespace GenTimeSheet.Controls
         {
             InitializeComponent();
         }
-
+        // binding property style classes.blue =isEnabled
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            Dictionary<string, string[]> weekends;
-
-            if (DataContext is MainViewModel mainViewModel)
+            for (int i = 0; i < 12; i++)
             {
-                weekends = mainViewModel.Weekends;
-
-                for (int i = 1; i <= 12; i++)
-                {
-                    PopulateDays(i, weekends[DateTimeFormatInfo.CurrentInfo.MonthNames[i - 1]]);
-                }
+                PopulateDays(i);
             }
         }
 
-        private void PopulateDays(int monthNumber, string[] weekend)
+        private void PopulateDays(int monthIndex)
         {
+            var calendarHandler = new CalendarHandler();
+
+            List<int> dates = calendarHandler.GetMonthHolidays(monthIndex);
+
+            int monthNumber = monthIndex + 1;
+
             int daysColumn = 7;
             int daysRows = 7;
 
@@ -76,12 +77,12 @@ namespace GenTimeSheet.Controls
                     textBlock.SetValue(Grid.ColumnProperty, firstDayMonth);
                     textBlock.SetValue(Grid.RowProperty, j);
 
-                    if (weekend.Contains(dayNumber.ToString()))
+                    if (dates.Contains(dayNumber))
                     {
-                        textBlock.Classes.Add("weekend");
+                        textBlock.Classes.Add("holiday");
                     }
 
-                    textblocks.Add(textBlock);                    
+                    textblocks.Add(textBlock);
 
                     dayNumber++;
                 }
@@ -91,7 +92,7 @@ namespace GenTimeSheet.Controls
 
             DateTimeFormatInfo dtfi = CultureInfo.CreateSpecificCulture("en-US").DateTimeFormat;
 
-            string monthName = dtfi.MonthNames[monthNumber - 1];
+            string monthName = dtfi.MonthNames[monthIndex];
 
             var grid = AnnualCalendarGrid.FindControl<Grid>(monthName.ToString());
             grid?.Children.AddRange(textblocks);

@@ -1,11 +1,11 @@
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
 
@@ -22,15 +22,13 @@ internal class Validation
 
     internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
 
-    private readonly List<string> _holidaysParagraphs;
+    private readonly List<int> _holidaysParagraphs;
 
     internal List<string> ValidationErrors = [];
     internal List<int> Holidays { get; private set; }
 
-    internal Validation(List<string> holidaysParagraphs)
+    internal Validation()
     {
-        _holidaysParagraphs = holidaysParagraphs;
-
         _filePath1 = FileHandler.GetFilePath("1.docx");
         _filePath2 = FileHandler.GetFilePath("2.docx");
 
@@ -39,7 +37,7 @@ internal class Validation
 
         string monthName = GetStringsFromParagraph(_filePath1)[^3].ToLower();
 
-        _month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
+        _month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;       
 
         _year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);
 
@@ -72,7 +70,7 @@ internal class Validation
 
     private void CheckWeekendsColor()
     {
-        Holidays =  GetMonthsHolidays();
+        Holidays = new CalendarHandler().GetMonthHolidays(_month);
 
         bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&
@@ -89,12 +87,12 @@ internal class Validation
     {
         string monthName = DateTimeFormatInfo.CurrentInfo.MonthNames[_month - 1];
 
-        Web.GetWeekends();
+    //    Web.GetWeekends();
 
         return [];
     }
 
-    private List<int> GetMonthsHolidays()
+    /*private List<int> GetMonthsHolidays()
     {
         string monthGenitiveNames = DateTimeFormatInfo.CurrentInfo.MonthGenitiveNames[_month - 1];
 
@@ -117,7 +115,7 @@ internal class Validation
         }
 
         return dates;
-    }
+    }*/
 
     private void CheckXsCount()
     {
