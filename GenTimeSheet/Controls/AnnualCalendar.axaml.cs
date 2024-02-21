@@ -23,11 +23,11 @@ namespace GenTimeSheet.Controls
             }
         }
 
-        private void PopulateDays(int monthIndex)
+        private async void PopulateDays(int monthIndex)
         {
             var calendarHandler = new CalendarHandler();
 
-            List<int> holidays = calendarHandler.GetMonthHolidays(monthIndex);
+            List<int> holidays = await calendarHandler.GetMonthHolidays(monthIndex);
             List<int> weekends = calendarHandler.GetMonthWeekends(monthIndex);
 
             int monthNumber = monthIndex + 1;

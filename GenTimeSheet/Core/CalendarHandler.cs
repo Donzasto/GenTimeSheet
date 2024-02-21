@@ -8,9 +8,9 @@ namespace GenTimeSheet.Core;
 
 internal class CalendarHandler
 {
-    internal List<int> GetMonthHolidays(int _month)
+    internal async Task<List<int>> GetMonthHolidays(int _month)
     {
-        string[]? _response = Web.Response;
+        string[]? _response = await Web.GetResponse();
 
         int i = 0;
 
@@ -62,7 +62,7 @@ internal class CalendarHandler
 
         for (int j = 0; j < 12; j++)
         {
-            List<int> dates = calendarHandler.GetMonthHolidays(j);
+           /* List<int> dates = calendarHandler.GetMonthHolidays(j);
 
             if (dates.Count > 0)
             {
@@ -76,7 +76,7 @@ internal class CalendarHandler
                 {
                     holidays.Add(month, dates);
                 }
-            }
+            }*/
         }
 
         return holidays;

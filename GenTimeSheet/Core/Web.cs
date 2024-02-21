@@ -13,6 +13,16 @@ internal static class Web
         BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvennye/"),
     };
 
+    static Web()
+    {
+        GetAsyncResponse();
+    }
+
+    internal static async void  GetAsyncResponse()
+    {
+        Response = await GetResponse();
+    }
+
     internal static async Task<string[]> GetResponse()
     {
         using HttpResponseMessage response = await sharedClient.GetAsync("2024/");

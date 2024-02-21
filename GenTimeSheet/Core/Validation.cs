@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -44,10 +45,10 @@ internal class Validation
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
 
-    internal void ValidateDocx()
+    internal async Task ValidateDocx()
     {
         CheckDaysInMonth();
-        CheckWeekendsColor();
+        await CheckWeekendsColor();
         CheckXsCount();
         CheckWeekendsWithEights();
         CheckFirstDay();
@@ -68,9 +69,9 @@ internal class Validation
             ValidationErrors.Add("days in month");
     }
 
-    private void CheckWeekendsColor()
+    private async Task CheckWeekendsColor()
     {
-        Holidays = new CalendarHandler().GetMonthHolidays(_month);
+        Holidays = await new CalendarHandler().GetMonthHolidays(_month);
 
         bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&

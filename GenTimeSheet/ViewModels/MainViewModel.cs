@@ -11,9 +11,10 @@ public partial class MainViewModel : ViewModelBase
     private List<string> _validationErrors;
 
     [ObservableProperty]
-    private string[] _weekends;
+    private string[] _response;
 
-    public Task Initialization { get; private set; }
+    [ObservableProperty]
+    private Task _initialization;
 
     public MainViewModel()
     {
@@ -22,14 +23,14 @@ public partial class MainViewModel : ViewModelBase
 
     private async Task InitializeAsync()
     {
-        Weekends = await Web.GetResponse();
+        Response = await Web.GetResponse();
     }
 
-    public void ClickStart()
+    public async void ClickStart()
     {
         var validation = new Validation();
 
-        validation.ValidateDocx();
+        await validation.ValidateDocx();
 
         ValidationErrors = validation.ValidationErrors;
 
