@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace GenTimeSheet.Core;
@@ -111,5 +112,30 @@ internal class CalendarHandler
         }
 
         return weekends;
+    }
+
+    internal List<int> GetMonthWeekends(int monthIndex)
+    {
+        string[]? _response = Web.Response;
+        string[] dates = [];
+
+        for (int i = 0; i < _response?.Length; i++)
+        {
+            string month = DateTimeFormatInfo.CurrentInfo.MonthNames[monthIndex];
+
+            if (_response[i].Contains(month, StringComparison.OrdinalIgnoreCase))
+            {
+                int datesHTMLStringIndex = i + 14;
+
+                dates = _response[datesHTMLStringIndex].Split("weekend\">");
+
+                for (int j = 1; j < dates.Length; j++)
+                {
+                    dates[j] = dates[j].Remove(dates[j].IndexOf('<'));
+                }
+            }
+        }
+
+        return dates[1..].Select(int.Parse).ToList();
     }
 }
