@@ -1,11 +1,11 @@
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
 
@@ -91,31 +91,6 @@ internal class Validation
 
         return [];
     }
-
-    /*private List<int> GetMonthsHolidays()
-    {
-        string monthGenitiveNames = DateTimeFormatInfo.CurrentInfo.MonthGenitiveNames[_month - 1];
-
-        var dates = new List<int>();
-
-        foreach (var paragraph in _holidaysParagraphs)
-        {
-            if (paragraph.Contains(monthGenitiveNames))
-            {
-                string[] s = paragraph.Replace("<p>", "").Replace(",", "").Split(" ");
-
-                foreach (var item in s)
-                {
-                    if (int.TryParse(item, out int result))
-                    {
-                        dates.Add(result);
-                    }
-                }
-            }
-        }
-
-        return dates;
-    }*/
 
     private void CheckXsCount()
     {
