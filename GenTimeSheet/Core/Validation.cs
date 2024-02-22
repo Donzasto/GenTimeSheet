@@ -71,7 +71,7 @@ internal class Validation
 
     private async Task CheckWeekendsColor()
     {
-        Holidays = await new CalendarHandler().GetMonthHolidays(_month);
+        Holidays = await new CalendarHandler().GetMonthHolidaysDates(_month);
 
         bool HasIncorrectWeekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null &&

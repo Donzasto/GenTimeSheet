@@ -27,7 +27,7 @@ namespace GenTimeSheet.Controls
         {
             var calendarHandler = new CalendarHandler();
 
-            List<int> holidays = await calendarHandler.GetMonthHolidays(monthIndex);
+            List<int> holidaysDates = await calendarHandler.GetMonthHolidaysDates(monthIndex);
             List<int> weekends = calendarHandler.GetMonthWeekends(monthIndex);
 
             int monthNumber = monthIndex + 1;
@@ -76,13 +76,17 @@ namespace GenTimeSheet.Controls
                     textBlock.SetValue(Grid.ColumnProperty, firstDayMonth);
                     textBlock.SetValue(Grid.RowProperty, j);
 
-                    if (holidays.Contains(dayNumber))
+                    if (holidaysDates.Contains(dayNumber))
                     {
                         textBlock.Classes.Add("holiday");
+                        ToolTip.SetTip(textBlock, "holiday");
+                        ToolTip.SetShowDelay(textBlock, 0);
                     }
                     else if (weekends.Contains(dayNumber))
                     {
                         textBlock.Classes.Add("weekend");
+                        ToolTip.SetTip(textBlock, "weekend");
+                        ToolTip.SetShowDelay(textBlock, 0);
                     }
 
                     textblocks.Add(textBlock);
