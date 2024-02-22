@@ -4,6 +4,7 @@ using GenTimeSheet.Core;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace GenTimeSheet.Controls
 {
@@ -27,7 +28,8 @@ namespace GenTimeSheet.Controls
         {
             var calendarHandler = new CalendarHandler();
 
-            List<int> holidaysDates = await calendarHandler.GetMonthHolidaysDates(monthIndex);
+            Dictionary<string, List<int>> holidays 
+                = await calendarHandler.GetMonthHolidays(monthIndex);
             List<int> weekends = calendarHandler.GetMonthWeekends(monthIndex);
 
             int monthNumber = monthIndex + 1;
@@ -76,16 +78,18 @@ namespace GenTimeSheet.Controls
                     textBlock.SetValue(Grid.ColumnProperty, firstDayMonth);
                     textBlock.SetValue(Grid.RowProperty, j);
 
-                    if (holidaysDates.Contains(dayNumber))
+                    var name = holidays.Where(s => s.Value.Contains(dayNumber)).FirstOrDefault();
+
+                    if (name.Value != null && name.Value.Contains(dayNumber))
                     {
                         textBlock.Classes.Add("holiday");
-                        ToolTip.SetTip(textBlock, "holiday");
+                        ToolTip.SetTip(textBlock, name.Key);
                         ToolTip.SetShowDelay(textBlock, 0);
                     }
                     else if (weekends.Contains(dayNumber))
                     {
                         textBlock.Classes.Add("weekend");
-                        ToolTip.SetTip(textBlock, "weekend");
+                        ToolTip.SetTip(textBlock, "Выходной");
                         ToolTip.SetShowDelay(textBlock, 0);
                     }
 
