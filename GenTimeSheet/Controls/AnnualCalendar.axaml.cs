@@ -15,20 +15,24 @@ namespace GenTimeSheet.Controls
             InitializeComponent();
         }
 
-        // binding property style classes.blue = isEnabled
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            PopulateAnnualCalendar();
+        }
+
+        private void PopulateAnnualCalendar()
         {
             for (int i = 0; i < 12; i++)
             {
-                PopulateDays(i);
+                PopulateMonth(i);
             }
         }
 
-        private async void PopulateDays(int monthIndex)
+        private async void PopulateMonth(int monthIndex)
         {
             var calendarHandler = new CalendarHandler();
 
-            Dictionary<string, List<int>> holidays 
+            Dictionary<string, List<int>> holidays
                 = await calendarHandler.GetMonthHolidays(monthIndex);
             List<int> weekends = calendarHandler.GetMonthWeekends(monthIndex);
 
@@ -83,14 +87,14 @@ namespace GenTimeSheet.Controls
                     if (name.Value != null && name.Value.Contains(dayNumber))
                     {
                         textBlock.Classes.Add("holiday");
-                        ToolTip.SetTip(textBlock, name.Key);
-                        ToolTip.SetShowDelay(textBlock, 0);
+
+                        SetToolTip(textBlock, name.Key);
                     }
                     else if (weekends.Contains(dayNumber))
                     {
                         textBlock.Classes.Add("weekend");
-                        ToolTip.SetTip(textBlock, "Выходной");
-                        ToolTip.SetShowDelay(textBlock, 0);
+
+                        SetToolTip(textBlock, "Выходной");
                     }
 
                     textblocks.Add(textBlock);
@@ -105,8 +109,15 @@ namespace GenTimeSheet.Controls
 
             string monthName = dtfi.MonthNames[monthIndex];
 
-            var grid = AnnualCalendarGrid.FindControl<Grid>(monthName.ToString());
+            var grid = AnnualCalendarGrid.FindControl<Grid>(monthName);
+
             grid?.Children.AddRange(textblocks);
+        }
+
+        private void SetToolTip(Control control, string tip)
+        {
+            ToolTip.SetTip(control, tip);
+            ToolTip.SetShowDelay(control, 0);
         }
     }
 }

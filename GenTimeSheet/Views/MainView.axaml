@@ -21,9 +21,7 @@
 			</Grid>
 		</TabItem>
 		<TabItem Header="Calendar">
-			<Grid RowDefinitions="*">
-				<controls:AnnualCalendar/>
-			</Grid>
+			<controls:AnnualCalendar/>
 		</TabItem>
 	</TabControl>
 
