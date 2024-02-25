@@ -6,6 +6,9 @@
              x:Class="GenTimeSheet.Controls.AnnualCalendar"
 			 xmlns:controls="clr-namespace:GenTimeSheet.Controls">
 	<UserControl.Styles>
+		<Style Selector="ToolTip">
+			<Setter Property="FontSize" Value="16"/>
+		</Style>
 		<Style Selector="TextBlock.holiday">
 			<Setter Property="Background" Value="Red"/>
 		</Style>
@@ -13,20 +16,19 @@
 			<Setter Property="Background" Value="Firebrick"/>
 		</Style>
 	</UserControl.Styles>
-	<Panel>
-		<Grid Name="AnnualCalendarGrid" ColumnDefinitions="*, *, *, *" RowDefinitions="*, *, *">			
-			
-		<Border Grid.Column="0" Grid.Row="0" BorderBrush="Aqua" BorderThickness="1" CornerRadius="3" Margin="1">
-			<controls:Month/>
-		</Border>
-		<Border Grid.Column="1" Grid.Row="0" BorderBrush="Aqua" BorderThickness="1" Margin="1">
-			<Grid RowDefinitions="auto, *">
-				<Grid Grid.Row="0" RowDefinitions="*">
-					<TextBlock Text="Февраль" TextAlignment="Center"/>
-				</Grid>
-				<Grid Name="February" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
+	<Grid Name="AnnualCalendarGrid" ColumnDefinitions="*, *, *, *" RowDefinitions="*, *, *">
+		<Grid Grid.Column="0" Grid.Row="0" RowDefinitions="auto, *">
+			<Grid Grid.Row="0" RowDefinitions="*">
+				<TextBlock Text="Январь" TextAlignment="Center"/>
 			</Grid>
-		</Border>
+			<Grid Name="January" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
+		</Grid>
+		<Grid Grid.Column="1" Grid.Row="0" RowDefinitions="auto, *">
+			<Grid Grid.Row="0" RowDefinitions="*">
+				<TextBlock Text="Февраль" TextAlignment="Center"/>
+			</Grid>
+			<Grid Name="February" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
+		</Grid>
 		<Grid Grid.Column="2" Grid.Row="0" RowDefinitions="auto, *">
 			<Grid Grid.Row="0" RowDefinitions="*">
 				<TextBlock Text="Март" TextAlignment="Center"/>
@@ -88,5 +90,4 @@
 			<Grid Name="December" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 	</Grid>
-	</Panel>
 </UserControl>

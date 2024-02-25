@@ -93,7 +93,7 @@ internal class CalendarHandler
         {
             string month = DateTimeFormatInfo.CurrentInfo.MonthNames[monthIndex];
 
-            if (_response[i].Contains(month, StringComparison.OrdinalIgnoreCase))
+            if (_response[i].Contains($"class=\"month\">{month}", StringComparison.OrdinalIgnoreCase))
             {
                 int datesHTMLStringIndex = i + 14;
 

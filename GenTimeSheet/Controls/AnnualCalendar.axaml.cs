@@ -10,7 +10,7 @@ namespace GenTimeSheet.Controls
 {
     public partial class AnnualCalendar : UserControl
     {
-        public List<Month> Months { get; set; }
+        public string[] Monthst { get; set; } = DateTimeFormatInfo.CurrentInfo.MonthNames;
 
         public AnnualCalendar()
         {
@@ -19,12 +19,7 @@ namespace GenTimeSheet.Controls
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            Months = new List<Month>() { new Month(), new Month() };
-
-
-        //    AnnualCalendarGrid?.Children.Add(month);
-
-            //    PopulateAnnualCalendar();
+            PopulateAnnualCalendar();
         }
 
         private void PopulateAnnualCalendar()
@@ -116,13 +111,13 @@ namespace GenTimeSheet.Controls
 
             string monthName = dtfi.MonthNames[monthIndex];
 
-            var grid = AnnualCalendarGrid.FindControl<Grid>("MonthDates");
+            var grid = AnnualCalendarGrid.FindControl<Grid>(monthName);
 
             grid?.Children.AddRange(textblocks);
         }
 
         private void SetToolTip(Control control, string tip)
-        {
+        {            
             ToolTip.SetTip(control, tip);
             ToolTip.SetShowDelay(control, 0);
         }
