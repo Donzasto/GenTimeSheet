@@ -10,8 +10,6 @@ namespace GenTimeSheet.Controls
 {
     public partial class AnnualCalendar : UserControl
     {
-        public string[] Monthst { get; set; } = DateTimeFormatInfo.CurrentInfo.MonthNames;
-
         public AnnualCalendar()
         {
             InitializeComponent();
