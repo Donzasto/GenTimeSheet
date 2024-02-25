@@ -1,38 +1,19 @@
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using GenTimeSheet.Core;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System;
 using System.Linq;
 
 namespace GenTimeSheet.Controls
 {
-    public partial class AnnualCalendar : UserControl
+    public partial class Month : UserControl
     {
-        public List<Month> Months { get; set; }
-
-        public AnnualCalendar()
+        public Month()
         {
             InitializeComponent();
-        }
 
-        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-        {
-            Months = new List<Month>() { new Month(), new Month() };
-
-
-        //    AnnualCalendarGrid?.Children.Add(month);
-
-            //    PopulateAnnualCalendar();
-        }
-
-        private void PopulateAnnualCalendar()
-        {
-            for (int i = 0; i < 12; i++)
-            {
-                PopulateMonth(i);
-            }
+            PopulateMonth(1);
         }
 
         private async void PopulateMonth(int monthIndex)
@@ -116,7 +97,7 @@ namespace GenTimeSheet.Controls
 
             string monthName = dtfi.MonthNames[monthIndex];
 
-            var grid = AnnualCalendarGrid.FindControl<Grid>("MonthDates");
+            var grid = this.FindControl<Grid>("MonthDates");
 
             grid?.Children.AddRange(textblocks);
         }

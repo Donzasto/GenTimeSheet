@@ -124,6 +124,11 @@ internal class Generator
     {
         string dayStatus = Constants.RU_F;
 
+        if (dayIndex < 15)
+        {
+            ++dayIndex;
+        }
+
         if (_validation.Holidays.Contains(dayIndex))
         {
             dayStatus = Constants.RU_RP;

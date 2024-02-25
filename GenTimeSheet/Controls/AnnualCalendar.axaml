@@ -3,7 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="GenTimeSheet.Controls.AnnualCalendar">
+             x:Class="GenTimeSheet.Controls.AnnualCalendar"
+			 xmlns:controls="clr-namespace:GenTimeSheet.Controls">
 	<UserControl.Styles>
 		<Style Selector="TextBlock.holiday">
 			<Setter Property="Background" Value="Red"/>
@@ -12,14 +13,11 @@
 			<Setter Property="Background" Value="Firebrick"/>
 		</Style>
 	</UserControl.Styles>
-	<Grid Name="AnnualCalendarGrid" ColumnDefinitions="*, *, *, *" RowDefinitions="*, *, *">
+	<Panel>
+		<Grid Name="AnnualCalendarGrid" ColumnDefinitions="*, *, *, *" RowDefinitions="*, *, *">			
+			
 		<Border Grid.Column="0" Grid.Row="0" BorderBrush="Aqua" BorderThickness="1" CornerRadius="3" Margin="1">
-			<Grid  RowDefinitions="auto, *">
-				<Grid Grid.Row="0" RowDefinitions="*">
-					<TextBlock Text="Январь" TextAlignment="Center"/>
-				</Grid>
-				<Grid Name="January" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
-			</Grid>
+			<controls:Month/>
 		</Border>
 		<Border Grid.Column="1" Grid.Row="0" BorderBrush="Aqua" BorderThickness="1" Margin="1">
 			<Grid RowDefinitions="auto, *">
@@ -90,4 +88,5 @@
 			<Grid Name="December" Grid.Row="1" ColumnDefinitions="*, *, *, *, *, *, *" RowDefinitions="*, *, *, *, *, *, *"/>
 		</Grid>
 	</Grid>
+	</Panel>
 </UserControl>
