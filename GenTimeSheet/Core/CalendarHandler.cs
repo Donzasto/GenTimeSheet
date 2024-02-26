@@ -60,9 +60,14 @@ internal class CalendarHandler
 
     private async Task<List<string>> GetHolidaysParagraphs()
     {
-        string[]? _response = await Web.GetResponse();
-
+        string[] _response = await Web.GetResponse();        
+      
         int i = 0;
+
+        if (_response.Length == 0)
+        {
+            return [];
+        }
 
         while (!_response[i].Contains("blockquote"))
         {
@@ -84,9 +89,15 @@ internal class CalendarHandler
         return holidaysParagraphs;
     }
 
-    internal List<int> GetMonthWeekends(int monthIndex)
+    internal async Task<List<int>> GetMonthWeekends(int monthIndex)
     {
-        string[]? _response = Web.Response;
+        string[] _response = await Web.GetResponse();
+
+        if (_response.Length == 0)
+        {
+            return [];
+        }
+
         string[] dates = [];
 
         for (int i = 0; i < _response?.Length; i++)

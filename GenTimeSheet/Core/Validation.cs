@@ -23,8 +23,6 @@ internal class Validation
 
     internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
 
-    private readonly List<int> _holidaysParagraphs;
-
     internal List<string> ValidationErrors = [];
     internal List<int> Holidays { get; private set; }
 

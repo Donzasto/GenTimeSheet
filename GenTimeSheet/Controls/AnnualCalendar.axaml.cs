@@ -3,6 +3,7 @@ using Avalonia.Controls.Primitives;
 using GenTimeSheet.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
@@ -32,9 +33,8 @@ namespace GenTimeSheet.Controls
         {
             var calendarHandler = new CalendarHandler();
 
-            Dictionary<string, List<int>> holidays
-                = await calendarHandler.GetMonthHolidays(monthIndex);
-            List<int> weekends = calendarHandler.GetMonthWeekends(monthIndex);
+            Dictionary<string, List<int>> holidays = await calendarHandler.GetMonthHolidays(monthIndex);
+            List<int> weekends = await calendarHandler.GetMonthWeekends(monthIndex);
 
             int monthNumber = monthIndex + 1;
 
@@ -115,7 +115,7 @@ namespace GenTimeSheet.Controls
         }
 
         private void SetToolTip(Control control, string tip)
-        {            
+        {
             ToolTip.SetTip(control, tip);
             ToolTip.SetShowDelay(control, 0);
         }

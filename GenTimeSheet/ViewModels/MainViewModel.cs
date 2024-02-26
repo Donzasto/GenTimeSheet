@@ -1,29 +1,36 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using GenTimeSheet.Core;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace GenTimeSheet.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private List<string> _validationErrors;
+    private List<string>? _validationErrors;
 
     [ObservableProperty]
-    private string[] _response;
+    private string? _requestException;
 
     [ObservableProperty]
-    private Task _initialization;
+    private bool _hasRequestException;
 
     public MainViewModel()
     {
-        Initialization = InitializeAsync();
+        GetResponse();
     }
 
-    private async Task InitializeAsync()
+    private async void GetResponse()
     {
-        Response = await Web.GetResponse();
+        try
+        {
+            await Web.GetResponse();
+        }
+        catch (System.Exception e )
+        {
+            HasRequestException = true;
+            RequestException = $"Ошибка синхронизации.{e.Message}";
+        }
     }
 
     public async void ClickStart()

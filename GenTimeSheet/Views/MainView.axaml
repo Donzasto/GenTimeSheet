@@ -15,12 +15,12 @@
 	<TabControl>
 		<TabItem Header="Main">
 			<Grid RowDefinitions="*, Auto, Auto">
-				<ListBox ItemsSource="{Binding Holidays}" Grid.Row="0"></ListBox>
+				<TextBox Text="{Binding RequestException}" Grid.Row="0"></TextBox>
 				<ListBox ItemsSource="{Binding ValidationErrors}" Grid.Row="1"></ListBox>
-				<Button Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
+				<Button IsEnabled="{Binding !HasRequestException}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
 			</Grid>
 		</TabItem>
-		<TabItem Header="Calendar">
+		<TabItem IsEnabled="{Binding !HasRequestException}" Header="Calendar">
 			<controls:AnnualCalendar/>
 		</TabItem>
 	</TabControl>
