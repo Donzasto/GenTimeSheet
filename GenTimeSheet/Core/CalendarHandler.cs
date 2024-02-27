@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GenTimeSheet.Core;
 
-internal class CalendarHandler
+public class CalendarHandler
 {
     internal async Task<List<int>> GetMonthHolidaysDates(int monthIndex)
     {
@@ -50,7 +50,7 @@ internal class CalendarHandler
                         dates.Add(result);
                     }
                 }
-
+                
                 holidays.Add(name, dates);
             }
         }

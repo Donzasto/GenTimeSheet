@@ -9,19 +9,22 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
 
-internal class Generator
+public class Generator
 {
     private IEnumerable<IEnumerable<Cell>> _tableSheet;
 
     private readonly Validation _validation;
+    private List<int> _holidays;
 
     public Generator(Validation validation)
     {
         _validation = validation;
     }
 
-    public void UpdateCells()
+    public async void UpdateCells()
     {
+        _holidays = await new CalendarHandler().GetMonthHolidaysDates(_validation.Month - 1);
+
         string filePath = FileHandler.GetFilePath("1.xlsx");
 
         using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filePath, true);
@@ -127,9 +130,9 @@ internal class Generator
         if (dayIndex < 15)
         {
             ++dayIndex;
-        }
+        }       
 
-        if (_validation.Holidays.Contains(dayIndex))
+        if (_holidays.Contains(dayIndex))
         {
             dayStatus = Constants.RU_RP;
         }

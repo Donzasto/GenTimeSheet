@@ -3,7 +3,6 @@ using Avalonia.Controls.Primitives;
 using GenTimeSheet.Core;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 

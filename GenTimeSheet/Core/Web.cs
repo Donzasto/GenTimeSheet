@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace GenTimeSheet.Core;
 
-internal static class Web
+public static class Web
 {
     private static readonly HttpClient sharedClient = new()
     {
         BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvennye/"),
     };
 
-    internal static async Task<string[]> GetResponse()
+    public static async Task<string[]> GetResponse()
     {
         string[] responseStrings = [];
 
