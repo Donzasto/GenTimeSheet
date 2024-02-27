@@ -29,7 +29,10 @@ public class Validation
     private const string DAYS_IN_MONTH_ERROR = "Неверное количество дней месяца!";
     private const string WEEKENDS_COLOR_ERROR = "Неверный цвет выходных!";
     private const string X_COUNT_ERROR = "Неверное количество людей в дне ";
-    private const string WEEKENDS_WITH_EIGHTS_ERROR = "Восьмерки на выходных!";
+    private const string WEEKENDS_WITH_EIGHTS_ERROR = "Восьмёрки на выходных!";
+    private const string FIRST_DAY_ERROR = "Неверный Х в первый день!";
+    private const string EIGHTS_NOT_EXIST_ERROR = "Нет восьмёрок";
+    private const string EIGHTS_AFTER_X_ERROR = "Неверная восьмёрка после Х в день ";
 
     public Validation(string filePath1 = "1.docx", string filePath2 = "2.docx")
     {
@@ -78,7 +81,7 @@ public class Validation
 
         var weekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
             Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null).
-            Select(c => int.Parse(c.InnerText));
+            Select(s => int.Parse(s.InnerText));
 
         bool firstNotSecond = weekendsColor.Except(weekends).Any();
         bool secondNotFirst = weekends.Except(weekendsColor).Any();
@@ -119,7 +122,7 @@ public class Validation
             Any();
 
         if (hasIncorrectFirstDay)
-            ValidationErrors.Add("first day");
+            ValidationErrors.Add(FIRST_DAY_ERROR);
     }
 
     private IEnumerable<string> GetNamesWorkedLastDayMonth() => _table2.Elements<TableRow>().
@@ -133,12 +136,16 @@ public class Validation
             Select(cell => cell.InnerText).ToArray();
 
         if(days.All(cell => cell != Constants.EIGHT))
-            ValidationErrors.Add("eights is empty");
+        {
+            ValidationErrors.Add(EIGHTS_NOT_EXIST_ERROR);
+
+            return;
+        }
 
         for (int i = 3; i < days.Length - 1; i++)
         {
             if (days[i].EqualsOneOf(Constants.RU_X, Constants.EN_X) && days[i + 1].EqualsOneOf(Constants.EIGHT))
-                ValidationErrors.Add("X and eight");
+                ValidationErrors.Add(EIGHTS_AFTER_X_ERROR + $"{i - 1}");
         }
     }
 
