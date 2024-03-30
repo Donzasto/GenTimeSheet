@@ -4,13 +4,15 @@ using System.Reflection;
 namespace Tests
 {
     public class ValidationTest
-    {
-        private const string FILEPATH2DOCX = "testFiles/2.docx";
+    {        
+        private const string CONTAINS_VALIDATION_ERRORS_DOCX = 
+            $"{Constants.TEST_FILES_PATH}/ContainsValidationErrors.docx";
+
 
         [Fact]
         public void CheckDaysInMonthDoesNotContainValidationError()
         {
-            var validation = new Validation("testFiles/1.docx", FILEPATH2DOCX);
+            var validation = new Validation(Constants.FILEPATH1DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckDaysInMonth", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -26,7 +28,7 @@ namespace Tests
         [Fact]
         public void CheckDaysInMonthContainsValidationError()
         {
-            var validation = new Validation("testFiles/ContainsValidationErrors.docx", FILEPATH2DOCX);
+            var validation = new Validation(CONTAINS_VALIDATION_ERRORS_DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckDaysInMonth", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -42,7 +44,7 @@ namespace Tests
         [Fact]
         public async Task CheckWeekendsColorDoesNotContainValidationError()
         {
-            var validation = new Validation("testFiles/1.docx", FILEPATH2DOCX);
+            var validation = new Validation(Constants.FILEPATH1DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckWeekendsColor", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -60,7 +62,7 @@ namespace Tests
         [Fact]
         public async Task CheckWeekendsColorContainsValidationError()
         {
-            var validation = new Validation("testFiles/ContainsValidationErrors.docx", FILEPATH2DOCX);
+            var validation = new Validation(CONTAINS_VALIDATION_ERRORS_DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckWeekendsColor", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -78,7 +80,7 @@ namespace Tests
         [Fact]
         public void CheckXsCountDoesNotContainValidationError()
         {
-            var validation = new Validation("testFiles/1.docx", FILEPATH2DOCX);
+            var validation = new Validation(Constants.FILEPATH1DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckXsCount", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -108,7 +110,7 @@ namespace Tests
         [Fact]
         public void CheckXsCountContainsValidationError()
         {
-            var validation = new Validation("testFiles/ContainsValidationErrors.docx", FILEPATH2DOCX);
+            var validation = new Validation(CONTAINS_VALIDATION_ERRORS_DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckXsCount", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -125,7 +127,7 @@ namespace Tests
         [Fact]
         public void CheckWeekendsWithEightsDoesNotContainValidationError()
         {
-            var validation = new Validation("testFiles/1.docx", FILEPATH2DOCX);
+            var validation = new Validation(Constants.FILEPATH1DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckWeekendsWithEights", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -141,7 +143,7 @@ namespace Tests
         [Fact]
         public void CheckWeekendsWithEightsContainsValidationError()
         {
-            var validation = new Validation("testFiles/ContainsValidationErrors.docx", FILEPATH2DOCX);
+            var validation = new Validation(CONTAINS_VALIDATION_ERRORS_DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckWeekendsWithEights", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -157,7 +159,7 @@ namespace Tests
         [Fact]
         public void CheckFirstDayDoesNotContainValidationError()
         {
-            var validation = new Validation("testFiles/1.docx", FILEPATH2DOCX);
+            var validation = new Validation(Constants.FILEPATH1DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckFirstDay", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -173,7 +175,7 @@ namespace Tests
         [Fact]
         public void CheckFirstDayContainsValidationError()
         {
-            var validation = new Validation("testFiles/ContainsValidationErrors.docx", FILEPATH2DOCX);
+            var validation = new Validation(CONTAINS_VALIDATION_ERRORS_DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckFirstDay", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -189,7 +191,7 @@ namespace Tests
         [Fact]
         public void CheckOrderXsAndEightsDoesNotContainValidationError()
         {
-            var validation = new Validation("testFiles/1.docx", FILEPATH2DOCX);
+            var validation = new Validation(Constants.FILEPATH1DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckOrderXsAndEights", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -205,7 +207,7 @@ namespace Tests
         [Fact]
         public void CheckOrderXsAndEightsContainsValidationError()
         {
-            var validation = new Validation("testFiles/ContainsValidationErrors.docx", FILEPATH2DOCX);
+            var validation = new Validation(CONTAINS_VALIDATION_ERRORS_DOCX, Constants.FILEPATH2DOCX);
 
             var methodInfo = typeof(Validation).
                 GetMethod("CheckOrderXsAndEights", BindingFlags.NonPublic | BindingFlags.Instance);

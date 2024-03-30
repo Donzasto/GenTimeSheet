@@ -7,7 +7,7 @@ namespace Tests
         [Fact]
         public void CheckFileExist()
         {
-            string filePath = FileHandler.GetFilePath("testFiles/1.xlsx");
+            string filePath = FileHandler.GetFilePath($"{Constants.TEST_FILES_PATH}/1.xlsx");
 
             Assert.True(File.Exists(filePath));
         }
@@ -15,7 +15,7 @@ namespace Tests
         [Fact]
         public void CheckFileNotExist()
         {
-            string filePath = FileHandler.GetFilePath("testFiles/2.xlsx");
+            string filePath = FileHandler.GetFilePath($"{Constants.TEST_FILES_PATH}/2.xlsx");
 
             Assert.False(File.Exists(filePath));
         }
