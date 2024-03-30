@@ -16,7 +16,7 @@
 		<TabItem Header="Main">
 			<Grid RowDefinitions="*, Auto, Auto">
 				<TextBox Text="{Binding RequestException}" Grid.Row="0"></TextBox>
-				<ListBox ItemsSource="{Binding ValidationErrors}" Grid.Row="1"></ListBox>
+				<ListBox ItemsSource="{Binding Messages}" Grid.Row="1"></ListBox>
 				<Button IsEnabled="{Binding !HasRequestException}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
 			</Grid>
 		</TabItem>

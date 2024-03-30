@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Vml;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
@@ -21,99 +25,112 @@ public class Generator
         _validation = validation;
     }
 
-    public async void UpdateCells()
+    public async Task UpdateCells()
     {
         _holidays = await new CalendarHandler().GetMonthHolidaysDates(_validation.Month - 1);
 
         string filePath = FileHandler.GetFilePath("1.xlsx");
+        string format = DateTime.Now.ToString("d-MM-yyyy-HH-mm-ss");
 
-        using SpreadsheetDocument spreadSheet = SpreadsheetDocument.Open(filePath, true);
-
-        string id = spreadSheet.WorkbookPart.Workbook.GetFirstChild<Sheets>().GetFirstChild<Sheet>().
-            Id.Value;
-
-        WorksheetPart worksheetPart = (WorksheetPart)spreadSheet.WorkbookPart.GetPartById(id);
-
-        Worksheet worksheet = worksheetPart.Worksheet;
-
-        IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
-            row.Elements<Cell>().ElementAt(1));
-
-        IEnumerable<TableRow> table = _validation.Table1.Elements<TableRow>().Skip(1);
-
-        SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
-            GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
-
-        _tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
-            Select(row => row.Elements<Cell>().Skip(4).Take(15).
-            Concat(row.Elements<Cell>().Skip(19))).ToArray();
-
-        foreach (var cell in namesColumn)
+        try
         {
-            int formulsColumn = 15;
+            var template = SpreadsheetDocument.Open(filePath, true);
 
-            if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
+            using SpreadsheetDocument spreadSheet = template.Clone($"../../../../GenTimeSheet/files/{format}.xlsx", true);
+
+            template.Dispose();
+
+            string id = spreadSheet.WorkbookPart.Workbook.GetFirstChild<Sheets>().GetFirstChild<Sheet>().
+                Id.Value;
+
+            WorksheetPart worksheetPart = (WorksheetPart)spreadSheet.WorkbookPart.GetPartById(id);
+
+            Worksheet worksheet = worksheetPart.Worksheet;
+
+            IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
+                row.Elements<Cell>().ElementAt(1));
+
+            IEnumerable<TableRow> table = _validation.Table1.Elements<TableRow>().Skip(1);
+
+            SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
+                GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
+
+            _tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
+                Select(row => row.Elements<Cell>().Skip(4).Take(15).
+                Concat(row.Elements<Cell>().Skip(19))).ToArray();
+
+            foreach (var cell in namesColumn)
             {
-                int ssid = int.Parse(cell.InnerText);
+                int formulsColumn = 15;
 
-                string name = sharedStringTable.ChildElements[ssid].InnerText;
-
-                int rowIndex = int.Parse(Regex.Match(cell.CellReference, @"\d+").Value) - 1;
-
-                IEnumerable<TableRow> personalDays = table.Where(row =>
-                    string.Compare(row.Elements<TableCell>().ElementAt(1).InnerText, name,
-                    CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols) == 0);
-
-                if (!personalDays.Any())
+                if ((cell.DataType != null) && (cell.DataType == CellValues.SharedString))
                 {
-                    continue;
-                }
+                    int ssid = int.Parse(cell.InnerText);
 
-                TableRow days = personalDays.First();
+                    string name = sharedStringTable.ChildElements[ssid].InnerText;
 
-                var markedDays = days.Skip(4).Select((Value, Index) => new { Value, Index }).
-                    Where(cell => cell.Value.InnerText.Any());
+                    int rowIndex = int.Parse(Regex.Match(cell.CellReference, @"\d+").Value) - 1;
 
-                int daysCount = days.Count() - 4;
+                    IEnumerable<TableRow> personalDays = table.Where(row =>
+                        string.Compare(row.Elements<TableCell>().ElementAt(1).InnerText, name,
+                        CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols) == 0);
 
-                foreach (var day in markedDays)
-                {
-                    int cellIndex = day.Index;
-                    string innerText = day.Value.InnerText;
-
-                    if (cellIndex >= formulsColumn)
-                        cellIndex++;
-
-                    if (innerText == Constants.RU_B)
+                    if (!personalDays.Any())
                     {
-                        SetCell(cellIndex, rowIndex, Constants.RU_B, CellValues.String);
+                        continue;
                     }
-                    else if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X))
+
+                    TableRow days = personalDays.First();
+
+                    var markedDays = days.Skip(4).Select((Value, Index) => new { Value, Index }).
+                        Where(cell => cell.Value.InnerText.Any());
+
+                    int daysCount = days.Count() - 4;
+
+                    foreach (var day in markedDays)
                     {
-                        string dayStatus = GetDayStatus(cellIndex);
+                        int cellIndex = day.Index;
+                        string innerText = day.Value.InnerText;
 
-                        SetCell(cellIndex, rowIndex, dayStatus, CellValues.String);
-                        SetCell(cellIndex, rowIndex + 1, Constants.SIXTEEN, CellValues.Number);
-                        SetCell(cellIndex, rowIndex + 2, Constants.TWO, CellValues.Number);
-
-                        if (cellIndex == daysCount)
-                            break;
-
-                        if (cellIndex + 1 == formulsColumn)
+                        if (cellIndex >= formulsColumn)
                             cellIndex++;
 
-                        SetCells(cellIndex + 1, rowIndex);
-                    }
-                    else if (innerText.EqualsOneOf(Constants.RU_O, Constants.EN_O))
-                    {
-                        SetCell(cellIndex, rowIndex, Constants.RU_O, CellValues.String);
-                    }
-                }
+                        if (innerText == Constants.RU_B)
+                        {
+                            SetCell(cellIndex, rowIndex, Constants.RU_B, CellValues.String);
+                        }
+                        else if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X))
+                        {
+                            string dayStatus = GetDayStatus(cellIndex);
 
-                RecalculateFormuls(formulsColumn, rowIndex);
-                formulsColumn = daysCount + 1;
-                RecalculateFormuls(formulsColumn, rowIndex);
+                            SetCell(cellIndex, rowIndex, dayStatus, CellValues.String);
+                            SetCell(cellIndex, rowIndex + 1, Constants.SIXTEEN, CellValues.Number);
+                            SetCell(cellIndex, rowIndex + 2, Constants.TWO, CellValues.Number);
+
+                            if (cellIndex == daysCount)
+                                break;
+
+                            if (cellIndex + 1 == formulsColumn)
+                                cellIndex++;
+
+                            SetCells(cellIndex + 1, rowIndex);
+                        }
+                        else if (innerText.EqualsOneOf(Constants.RU_O, Constants.EN_O))
+                        {
+                            SetCell(cellIndex, rowIndex, Constants.RU_O, CellValues.String);
+                        }
+                    }
+
+                    RecalculateFormuls(formulsColumn, rowIndex);
+                    formulsColumn = daysCount + 1;
+                    RecalculateFormuls(formulsColumn, rowIndex);
+                }
             }
+
+        }
+        catch (Exception)
+        {
+            throw;
         }
     }
 
@@ -124,7 +141,7 @@ public class Generator
         if (dayIndex < 15)
         {
             ++dayIndex;
-        }       
+        }
 
         if (_holidays.Contains(dayIndex))
         {

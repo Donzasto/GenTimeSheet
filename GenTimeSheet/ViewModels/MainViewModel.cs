@@ -1,13 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using GenTimeSheet.Core;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace GenTimeSheet.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private List<string>? _validationErrors;
+    private ObservableCollection<string>? _messages;
 
     [ObservableProperty]
     private string? _requestException;
@@ -39,10 +39,19 @@ public partial class MainViewModel : ViewModelBase
 
         await validation.ValidateDocx();
 
-        ValidationErrors = validation.ValidationErrors;
+        Messages = new ObservableCollection<string> (validation.ValidationErrors);
 
         var generator = new Generator(validation);
 
-        generator.UpdateCells();
+        try
+        {
+            await generator.UpdateCells();
+
+            Messages.Add("Файл успшено создан");
+        }
+        catch (System.Exception ex)
+        {
+            Messages.Add(ex.Message);
+        }
     }
 }
