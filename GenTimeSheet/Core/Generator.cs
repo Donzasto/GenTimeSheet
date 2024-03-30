@@ -71,16 +71,6 @@ public class Generator
 
                 TableRow days = personalDays.First();
 
-                bool firstDayIsNotB = days.Skip(4).First().InnerText != Constants.RU_B;
-                bool lastDayIsNotB = days.Skip(days.Count() - 1).First().InnerText != Constants.RU_B;
-
-                if (_validation.NamesWorkedLastDayMonth.
-                    Contains(Regex.Replace(name, @"\s+", string.Empty)) &&
-                    firstDayIsNotB && lastDayIsNotB)
-                {
-                    SetCells(0, rowIndex);
-                }
-
                 var markedDays = days.Skip(4).Select((Value, Index) => new { Value, Index }).
                     Where(cell => cell.Value.InnerText.Any());
 
@@ -94,7 +84,11 @@ public class Generator
                     if (cellIndex >= formulsColumn)
                         cellIndex++;
 
-                    if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X))
+                    if (innerText == Constants.RU_B)
+                    {
+                        SetCell(cellIndex, rowIndex, Constants.RU_B, CellValues.String);
+                    }
+                    else if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X))
                     {
                         string dayStatus = GetDayStatus(cellIndex);
 
