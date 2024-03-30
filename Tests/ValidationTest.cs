@@ -4,10 +4,9 @@ using System.Reflection;
 namespace Tests
 {
     public class ValidationTest
-    {        
-        private const string CONTAINS_VALIDATION_ERRORS_DOCX = 
+    {
+        private const string CONTAINS_VALIDATION_ERRORS_DOCX =
             $"{Constants.TEST_FILES_PATH}/ContainsValidationErrors.docx";
-
 
         [Fact]
         public void CheckDaysInMonthDoesNotContainValidationError()

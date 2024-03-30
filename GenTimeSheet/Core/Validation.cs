@@ -15,8 +15,8 @@ public class Validation
     private readonly string _filePath1;
     private readonly string _filePath2;
 
-    public int Month { get; private set; }
-    public int Year { get; private set; }
+    internal int Month { get; private set; }
+    internal int Year { get; private set; }
 
     internal readonly Table Table1;
     private readonly Table _table2;
@@ -40,12 +40,12 @@ public class Validation
 
         Table1 = GetLastTable(_filePath1);
         _table2 = GetLastTable(_filePath2);
-        
+
         string monthName = GetStringsFromParagraph(_filePath1)[^3].ToLower();
 
         Month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
-        
-        Year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);        
+
+        Year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);
 
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
@@ -134,7 +134,7 @@ public class Validation
         var days = Table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
 
-        if(days.All(cell => cell != Constants.EIGHT))
+        if (days.All(cell => cell != Constants.EIGHT))
         {
             ValidationErrors.Add(EIGHTS_NOT_EXIST_ERROR);
 
@@ -150,10 +150,17 @@ public class Validation
 
     private static Body GetBody(string filePath)
     {
-        using WordprocessingDocument wordprocessingDocument =
+        try
+        {
+            using WordprocessingDocument wordprocessingDocument =
             WordprocessingDocument.Open(filePath, false);
 
-        return wordprocessingDocument.MainDocumentPart.Document.Body;
+            return wordprocessingDocument.MainDocumentPart.Document.Body;
+        }
+        catch
+        {
+            throw;
+        }
     }
 
     internal Table GetLastTable(string filePath) => GetElements<Table>(filePath).Last();

@@ -27,19 +27,42 @@ public class Generator
     {
         int days = DateTime.DaysInMonth(_validation.Year, _validation.Month);
 
-        return "templates/" + days + ".xlsx";     
+        return "templates/" + days + ".xlsx";
+    }
+
+    private void SetTimesheetNumber(OpenXmlElement element)
+    {
+        string value = "Табель №" + _validation.Month * 2;
+
+        element.RemoveAllChildren();
+        element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
+
+    }
+
+    private void SetMonthHeader(OpenXmlElement element)
+    {
+        DateTimeFormatInfo dateTimeFormatInfo = new CultureInfo("ru-RU").DateTimeFormat;
+
+        string monthGenitiveNames = dateTimeFormatInfo.MonthGenitiveNames[_validation.Month - 1];
+
+        int days = DateTime.DaysInMonth(_validation.Year, _validation.Month);
+
+        string value = $"C 1 {monthGenitiveNames} по {days} {monthGenitiveNames}";
+
+        element.RemoveAllChildren();
+        element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
     }
 
     public async Task UpdateCells()
     {
-        _holidays = await new CalendarHandler().GetMonthHolidaysDates(_validation.Month - 1);
-
-        string templatePath = GetMonthTemplatePath();
-        string filePath = FileHandler.GetFilePath(templatePath);
-        string format = DateTime.Now.ToString("d-MM-yyyy-HH-mm-ss");
-
         try
         {
+            _holidays = await new CalendarHandler().GetMonthHolidaysDates(_validation.Month - 1);
+
+            string templatePath = GetMonthTemplatePath();
+            string filePath = FileHandler.GetFilePath(templatePath);
+            string format = DateTime.Now.ToString("d-MM-yyyy-HH-mm-ss");
+
             var template = SpreadsheetDocument.Open(filePath, true);
 
             using SpreadsheetDocument spreadSheet = template.Clone($"../../../../GenTimeSheet/files/{format}.xlsx", true);
@@ -60,6 +83,9 @@ public class Generator
 
             SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
                 GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
+
+            SetTimesheetNumber(sharedStringTable.ElementAt(0));
+            SetMonthHeader(sharedStringTable.ElementAt(4));
 
             _tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
                 Select(row => row.Elements<Cell>().Skip(4).Take(15).
@@ -134,7 +160,7 @@ public class Generator
             }
 
         }
-        catch (Exception)
+        catch
         {
             throw;
         }

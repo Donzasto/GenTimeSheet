@@ -35,19 +35,19 @@ public partial class MainViewModel : ViewModelBase
     }
 
     public async void ClickStart()
-    {
-        var validation = new Validation("1.docx", "2.docx");
-
-        await validation.ValidateDocx();
-
-        Messages = new ObservableCollection<string>(validation.ValidationErrors);
-
-        validation.ValidationErrors.ForEach(v => Messages.Add(v));
-
-        var generator = new Generator(validation);
-
+    {      
         try
         {
+            var validation = new Validation("1.docx", "2.docx");
+
+            await validation.ValidateDocx();
+
+            Messages = new ObservableCollection<string>(validation.ValidationErrors);
+
+            validation.ValidationErrors.ForEach(v => Messages.Add(v));
+
+            var generator = new Generator(validation);
+
             await generator.UpdateCells();
 
             Messages.Add("Файл успшено создан");
