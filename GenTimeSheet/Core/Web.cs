@@ -8,7 +8,7 @@ public static class Web
 {
     private static readonly HttpClient sharedClient = new()
     {
-        BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvenny/"),
+        BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvennye/"),
     };
 
     public static async Task<string[]> GetResponse()
