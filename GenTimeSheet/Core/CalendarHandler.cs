@@ -20,7 +20,16 @@ public class CalendarHandler
 
     internal async Task<Dictionary<string, List<int>>> GetMonthHolidays(int monthIndex)
     {
-        List<string> holidaysParagraphs = await GetHolidaysParagraphs();
+        List<string> holidaysParagraphs;
+
+        try
+        {
+            holidaysParagraphs = await GetHolidaysParagraphs();
+        }
+        catch (Exception)
+        {
+            throw;
+        }        
 
         string monthGenitiveNames = DateTimeFormatInfo.CurrentInfo.MonthGenitiveNames[monthIndex];
 
@@ -60,14 +69,19 @@ public class CalendarHandler
 
     private async Task<List<string>> GetHolidaysParagraphs()
     {
-        string[] _response = await Web.GetResponse();        
-      
-        int i = 0;
+        string[] _response;
 
-        if (_response.Length == 0)
+        try
         {
-            return [];
+            _response = await Web.GetResponse();
         }
+        catch (Exception)
+        {
+
+            throw;
+        }    
+        
+        int i = 0;
 
         while (!_response[i].Contains("blockquote"))
         {

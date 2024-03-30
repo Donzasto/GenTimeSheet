@@ -8,7 +8,7 @@ public static class Web
 {
     private static readonly HttpClient sharedClient = new()
     {
-        BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvennye/"),
+        BaseAddress = new Uri("https://www.consultant.ru/law/ref/calendar/proizvodstvenny/"),
     };
 
     public static async Task<string[]> GetResponse()
@@ -19,12 +19,16 @@ public static class Web
         {
             using HttpResponseMessage response = await sharedClient.GetAsync("2024/");
 
+            if (response.StatusCode != System.Net.HttpStatusCode.OK)
+            {
+                throw new Exception(response.RequestMessage.RequestUri + " " + response.StatusCode);
+            }
+
             var stringResponse = await response.Content.ReadAsStringAsync();
 
             responseStrings = stringResponse.Split('\n');
-
         }
-        catch (Exception e)
+        catch (Exception)
         {
             throw;
         }      

@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using GenTimeSheet.Core;
+using GenTimeSheet.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -32,8 +33,24 @@ namespace GenTimeSheet.Controls
         {
             var calendarHandler = new CalendarHandler();
 
-            Dictionary<string, List<int>> holidays = await calendarHandler.GetMonthHolidays(monthIndex);
-            List<int> weekends = await calendarHandler.GetMonthWeekends(monthIndex);
+            Dictionary<string, List<int>> holidays = null;
+            List<int> weekends = null;
+
+            try
+            {
+                holidays = await calendarHandler.GetMonthHolidays(monthIndex);
+                weekends = await calendarHandler.GetMonthWeekends(monthIndex);
+            }
+            catch (Exception ex)
+            {
+                if (DataContext is MainViewModel mainViewModel)
+                {
+                    if (mainViewModel.Messages != null && !mainViewModel.Messages.Contains(ex.Message))
+                    {
+                        mainViewModel.Messages.Add(ex.Message);
+                    }
+                }
+            }
 
             int monthNumber = monthIndex + 1;
 

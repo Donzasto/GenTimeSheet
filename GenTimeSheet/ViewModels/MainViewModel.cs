@@ -7,7 +7,7 @@ namespace GenTimeSheet.ViewModels;
 public partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private ObservableCollection<string>? _messages;
+    private ObservableCollection<string>? _messages = [];
 
     [ObservableProperty]
     private string? _requestException;
@@ -26,10 +26,11 @@ public partial class MainViewModel : ViewModelBase
         {
             await Web.GetResponse();
         }
-        catch (System.Exception e )
+        catch (System.Exception ex)
         {
             HasRequestException = true;
-            RequestException = $"Ошибка синхронизации.{e.Message}";
+
+            Messages?.Add(ex.Message);
         }
     }
 
@@ -39,7 +40,9 @@ public partial class MainViewModel : ViewModelBase
 
         await validation.ValidateDocx();
 
-        Messages = new ObservableCollection<string> (validation.ValidationErrors);
+        Messages = new ObservableCollection<string>(validation.ValidationErrors);
+
+        validation.ValidationErrors.ForEach(v => Messages.Add(v));
 
         var generator = new Generator(validation);
 
