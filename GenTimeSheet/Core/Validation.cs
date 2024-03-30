@@ -34,7 +34,7 @@ public class Validation
     private const string EIGHTS_NOT_EXIST_ERROR = "Нет восьмёрок";
     private const string EIGHTS_AFTER_X_ERROR = "Неверная восьмёрка после Х в день ";
 
-    public Validation(string filePath1 = "1.docx", string filePath2 = "2.docx")
+    public Validation(string filePath1, string filePath2)
     {
         _filePath1 = FileHandler.GetFilePath(filePath1);
         _filePath2 = FileHandler.GetFilePath(filePath2);

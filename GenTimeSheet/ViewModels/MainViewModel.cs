@@ -35,7 +35,7 @@ public partial class MainViewModel : ViewModelBase
 
     public async void ClickStart()
     {
-        var validation = new Validation();
+        var validation = new Validation("1.docx", "2.docx");
 
         await validation.ValidateDocx();
 
