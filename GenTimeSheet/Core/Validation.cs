@@ -16,8 +16,7 @@ public class Validation
     private readonly string _filePath2;
 
     public int Month { get; private set; }
-
-    private readonly int _year;
+    public int Year { get; private set; }
 
     internal readonly Table Table1;
     private readonly Table _table2;
@@ -46,7 +45,7 @@ public class Validation
 
         Month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
         
-        _year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);        
+        Year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);        
 
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
@@ -69,7 +68,7 @@ public class Validation
         string? lastDayMonth = Table1.Elements<TableRow>().First().Elements<TableCell>().Last().
             InnerText;
 
-        int daysInMonth = DateTime.DaysInMonth(_year, Month);
+        int daysInMonth = DateTime.DaysInMonth(Year, Month);
 
         if (int.Parse(lastDayMonth) != daysInMonth)
             ValidationErrors.Add(DAYS_IN_MONTH_ERROR);

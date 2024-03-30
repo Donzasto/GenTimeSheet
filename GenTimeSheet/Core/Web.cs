@@ -28,7 +28,7 @@ public static class Web
 
             responseStrings = stringResponse.Split('\n');
         }
-        catch (Exception)
+        catch
         {
             throw;
         }      

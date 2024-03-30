@@ -23,11 +23,19 @@ public class Generator
         _validation = validation;
     }
 
+    private string GetMonthTemplatePath()
+    {
+        int days = DateTime.DaysInMonth(_validation.Year, _validation.Month);
+
+        return "templates/" + days + ".xlsx";     
+    }
+
     public async Task UpdateCells()
     {
         _holidays = await new CalendarHandler().GetMonthHolidaysDates(_validation.Month - 1);
 
-        string filePath = FileHandler.GetFilePath("1.xlsx");
+        string templatePath = GetMonthTemplatePath();
+        string filePath = FileHandler.GetFilePath(templatePath);
         string format = DateTime.Now.ToString("d-MM-yyyy-HH-mm-ss");
 
         try

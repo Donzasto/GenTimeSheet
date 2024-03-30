@@ -26,7 +26,7 @@ public class CalendarHandler
         {
             holidaysParagraphs = await GetHolidaysParagraphs();
         }
-        catch (Exception)
+        catch
         {
             throw;
         }        
@@ -75,9 +75,8 @@ public class CalendarHandler
         {
             _response = await Web.GetResponse();
         }
-        catch (Exception)
+        catch
         {
-
             throw;
         }    
         
@@ -105,11 +104,15 @@ public class CalendarHandler
 
     internal async Task<List<int>> GetMonthWeekends(int monthIndex)
     {
-        string[] _response = await Web.GetResponse();
+        string[] _response;
 
-        if (_response.Length == 0)
+        try
         {
-            return [];
+            _response = await Web.GetResponse();
+        }
+        catch
+        {
+            throw;
         }
 
         string[] dates = [];
