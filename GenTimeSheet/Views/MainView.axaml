@@ -14,13 +14,38 @@
 	</Design.DataContext>
 	<TabControl>
 		<TabItem Header="Main">
-			<Grid RowDefinitions="*, Auto, Auto">
-				<TextBox Text="{Binding RequestException}" Grid.Row="0"></TextBox>
-				<ListBox ItemsSource="{Binding Messages}" Grid.Row="1"></ListBox>
-				<Button IsEnabled="{Binding !HasRequestException}" Command="{Binding ClickStart}" Grid.Row="2" HorizontalAlignment="Center">Start</Button>
+			<Grid 
+				RowDefinitions="*, Auto, Auto">
+				<ItemsControl
+					Grid.Row="0"
+					ItemsSource="{Binding CrockeryList}">
+					<ItemsControl.ItemTemplate>
+						<DataTemplate>
+							<Grid ColumnDefinitions="200, auto">
+								<TextBlock Grid.Column="0" 
+										   Text="{Binding Title}"/>
+								<TextBlock Grid.Column="1" 
+										   Margin="5 0" 
+										   FontWeight="Bold"
+										   Text="{Binding Number}"/>
+							</Grid>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
+				<ListBox 
+					ItemsSource="{Binding Messages}" 
+					Grid.Row="1"/>
+				<Button 
+					IsEnabled="{Binding !HasRequestException}" 
+					Command="{Binding ClickStart}" 
+					Grid.Row="2" 
+					HorizontalAlignment="Center" 
+					Content="Start"/>
 			</Grid>
 		</TabItem>
-		<TabItem IsEnabled="{Binding !HasRequestException}" Header="Calendar">
+		<TabItem 
+			IsEnabled="{Binding !HasRequestException}" 
+			Header="Calendar">
 			<controls:AnnualCalendar/>
 		</TabItem>
 	</TabControl>

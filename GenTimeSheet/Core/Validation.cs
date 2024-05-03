@@ -5,26 +5,12 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
 
 public class Validation
 {
-    private readonly string _filePath1;
-    private readonly string _filePath2;
-
-    internal int Month { get; private set; }
-    internal int Year { get; private set; }
-
-    internal readonly Table Table1;
-    private readonly Table _table2;
-
-    internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
-
-    public List<string> ValidationErrors = [];
-
     private const string DAYS_IN_MONTH_ERROR = "Неверное количество дней месяца!";
     private const string WEEKENDS_COLOR_ERROR = "Неверный цвет выходных!";
     private const string X_COUNT_ERROR = "Неверное количество людей в дне ";
@@ -33,19 +19,29 @@ public class Validation
     private const string EIGHTS_NOT_EXIST_ERROR = "Нет восьмёрок";
     private const string EIGHTS_AFTER_X_ERROR = "Неверная восьмёрка после Х в день ";
 
+    internal int Month { get; private set; }
+    internal int Year { get; private set; }
+
+    internal readonly Table CurrentMonthTable;
+    private readonly Table _previousMonthTable;
+
+    internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
+
+    public List<string> ValidationErrors = [];
+
     public Validation(string filePath1, string filePath2)
     {
-        _filePath1 = FileHandler.GetFilePath(filePath1);
-        _filePath2 = FileHandler.GetFilePath(filePath2);
+        var parseDoc1 = new ParseDoc(filePath1);
+        var parseDoc2 = new ParseDoc(filePath2);
 
-        Table1 = GetLastTable(_filePath1);
-        _table2 = GetLastTable(_filePath2);
+        CurrentMonthTable = parseDoc1.GetTableFromEnd(1);
+        _previousMonthTable = parseDoc2.GetTableFromEnd(1);
 
-        string monthName = GetStringsFromParagraph(_filePath1)[^3].ToLower();
+        string monthName = parseDoc1.GetStringsFromParagraph()[^3].ToLower();
 
         Month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
 
-        Year = int.Parse(GetStringsFromParagraph(_filePath1)[^2]);
+        Year = int.Parse(parseDoc1.GetStringsFromParagraph()[^2]);
 
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
     }
@@ -58,14 +54,11 @@ public class Validation
         CheckWeekendsWithEights();
         CheckFirstDay();
         CheckOrderXsAndEights();
-    }
-
-    private static string[] GetStringsFromParagraph(string filePath1) =>
-        GetFirstParagraph(filePath1).InnerText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    }    
 
     private void CheckDaysInMonth()
     {
-        string? lastDayMonth = Table1.Elements<TableRow>().First().Elements<TableCell>().Last().
+        string? lastDayMonth = CurrentMonthTable.Elements<TableRow>().First().Elements<TableCell>().Last().
             InnerText;
 
         int daysInMonth = DateTime.DaysInMonth(Year, Month);
@@ -78,7 +71,7 @@ public class Validation
     {
         List<int> weekends = await new CalendarHandler().GetMonthWeekends(Month - 1);
 
-        var weekendsColor = Table1.Elements<TableRow>().First().Elements<TableCell>().
+        var weekendsColor = CurrentMonthTable.Elements<TableRow>().First().Elements<TableCell>().
             Where(cells => cells.Elements<TableCellProperties>().ElementAt(0).Shading is not null).
             Select(s => int.Parse(s.InnerText));
 
@@ -91,7 +84,7 @@ public class Validation
 
     private void CheckXsCount()
     {
-        IEnumerable<List<TableCell>> rows = Table1.Elements<TableRow>().Select(cell =>
+        IEnumerable<List<TableCell>> rows = CurrentMonthTable.Elements<TableRow>().Select(cell =>
             cell.Elements<TableCell>().Skip(3).ToList());
 
         for (int i = 0; i < rows.First().Count; i++)
@@ -103,7 +96,7 @@ public class Validation
 
     private void CheckWeekendsWithEights()
     {
-        bool hasWeekendsWithEights = Table1.Elements<TableRow>().ElementAt(3).
+        bool hasWeekendsWithEights = CurrentMonthTable.Elements<TableRow>().ElementAt(3).
             Elements<TableCell>().Any(cells => cells.Elements<TableCellProperties>().ElementAt(0).
             Shading is not null && cells.InnerText.EqualsOneOf(Constants.EIGHT));
 
@@ -114,7 +107,7 @@ public class Validation
     private void CheckFirstDay()
     {
         bool hasIncorrectFirstDay = NamesWorkedLastDayMonth.
-            Intersect(Table1.Elements<TableRow>().
+            Intersect(CurrentMonthTable.Elements<TableRow>().
             Where(rows => rows.Elements<TableCell>().ElementAt(3).InnerText.
             EqualsOneOf(Constants.RU_X, Constants.EN_X, Constants.EIGHT)).
             Select(rows => rows.Elements<TableCell>().ElementAt(1).InnerText.Replace(" ", ""))).
@@ -124,14 +117,14 @@ public class Validation
             ValidationErrors.Add(FIRST_DAY_ERROR);
     }
 
-    private IEnumerable<string> GetNamesWorkedLastDayMonth() => _table2.Elements<TableRow>().
+    private IEnumerable<string> GetNamesWorkedLastDayMonth() => _previousMonthTable.Elements<TableRow>().
             Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(Constants.RU_X, Constants.EN_X)).
             Select(rows => Regex.Replace(rows.Elements<TableCell>().ElementAt(1).InnerText, @"\s+",
                 string.Empty)).ToArray();
 
     private void CheckOrderXsAndEights()
     {
-        var days = Table1.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
+        var days = CurrentMonthTable.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
 
         if (days.All(cell => cell != Constants.EIGHT))
@@ -147,29 +140,6 @@ public class Validation
                 ValidationErrors.Add(EIGHTS_AFTER_X_ERROR + $"{i - 1}");
         }
     }
-
-    private static Body GetBody(string filePath)
-    {
-        try
-        {
-            using WordprocessingDocument wordprocessingDocument =
-            WordprocessingDocument.Open(filePath, false);
-
-            return wordprocessingDocument.MainDocumentPart.Document.Body;
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    internal Table GetLastTable(string filePath) => GetElements<Table>(filePath).Last();
-
-    private static Paragraph GetFirstParagraph(string filePath) =>
-        GetElements<Paragraph>(filePath).First();
-
-    private static IEnumerable<T> GetElements<T>(string filePath) where T : OpenXmlElement =>
-        GetBody(filePath).Elements<T>();
 }
 
 public static class StringExtension

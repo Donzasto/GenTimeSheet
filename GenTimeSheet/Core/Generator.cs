@@ -79,7 +79,7 @@ public class Generator
             IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
                 row.Elements<Cell>().ElementAt(1));
 
-            IEnumerable<TableRow> table = _validation.Table1.Elements<TableRow>().Skip(1);
+            IEnumerable<TableRow> table = _validation.CurrentMonthTable.Elements<TableRow>().Skip(1);
 
             SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
                 GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
