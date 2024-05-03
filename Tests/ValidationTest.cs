@@ -1,5 +1,5 @@
-﻿using GenTimeSheet.Core;
-using System.Reflection;
+﻿using System.Reflection;
+using GenTimeSheet.Core;
 
 namespace Tests
 {

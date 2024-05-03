@@ -1,9 +1,9 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core
 {
@@ -17,6 +17,9 @@ namespace GenTimeSheet.Core
         }
 
         internal Table GetTableFromEnd(int index) => GetElements<Table>().ElementAt(^index);
+
+        internal string[] GetStringsFromParagraph() =>
+            GetFirstParagraph().InnerText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
         private IEnumerable<T> GetElements<T>() where T : OpenXmlElement =>
             GetBody().Elements<T>();
@@ -36,8 +39,5 @@ namespace GenTimeSheet.Core
         }
 
         private Paragraph GetFirstParagraph() =>GetElements<Paragraph>().First();
-
-        internal string[] GetStringsFromParagraph() =>
-            GetFirstParagraph().InnerText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
     }
 }

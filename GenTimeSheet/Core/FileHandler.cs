@@ -3,9 +3,9 @@ using System.IO;
 
 namespace GenTimeSheet.Core;
 
-public static class FileHandler
+internal static class FileHandler
 {
-    public static string GetFilePath(string fileName)
+    internal static string GetFilePath(string fileName)
     {
         string currentDirectory = AppDomain.CurrentDomain.BaseDirectory;
         string file = Path.Combine(currentDirectory, @"../../../../GenTimeSheet/files/" + fileName);

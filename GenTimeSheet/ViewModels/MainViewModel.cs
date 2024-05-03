@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 
 namespace GenTimeSheet.ViewModels;
 
-public partial class MainViewModel : ViewModelBase
+internal partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
     private ObservableCollection<string>? _messages = [];
@@ -16,21 +16,21 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _hasRequestException;
 
-    public ObservableCollection<Crockery> CrockeryList { get; set; }
+    internal ObservableCollection<Crockery> CrockeryList { get; set; }
 
-    public class Crockery
+    internal class Crockery
     {
-        public string Title { get; set; }
-        public int Number { get; set; }
+        internal string Title { get; set; }
+        internal int Number { get; set; }
 
-        public Crockery(string title, int number)
+        internal Crockery(string title, int number)
         {
             Title = title;
             Number = number;
         }
     }
 
-    public MainViewModel()
+    internal MainViewModel()
     {
         GetResponse();
 
@@ -60,7 +60,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public async void ClickStart()
+    internal async void ClickStart()
     {      
         try
         {            

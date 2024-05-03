@@ -9,7 +9,7 @@ using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
 
-public class Validation
+internal class Validation
 {
     private const string DAYS_IN_MONTH_ERROR = "Неверное количество дней месяца!";
     private const string WEEKENDS_COLOR_ERROR = "Неверный цвет выходных!";
@@ -27,9 +27,9 @@ public class Validation
 
     internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
 
-    public List<string> ValidationErrors = [];
+    internal List<string> ValidationErrors = [];
 
-    public Validation(string filePath1, string filePath2)
+    internal Validation(string filePath1, string filePath2)
     {
         var parseDoc1 = new ParseDoc(filePath1);
         var parseDoc2 = new ParseDoc(filePath2);
@@ -40,7 +40,6 @@ public class Validation
         string monthName = parseDoc1.GetStringsFromParagraph()[^3].ToLower();
 
         Month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
-
         Year = int.Parse(parseDoc1.GetStringsFromParagraph()[^2]);
 
         NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
@@ -142,8 +141,8 @@ public class Validation
     }
 }
 
-public static class StringExtension
+internal static class StringExtension
 {
-    public static bool EqualsOneOf(this string s, params string[] strings) =>
+    internal static bool EqualsOneOf(this string s, params string[] strings) =>
         strings.Contains(s.Trim(), StringComparer.OrdinalIgnoreCase);
 }

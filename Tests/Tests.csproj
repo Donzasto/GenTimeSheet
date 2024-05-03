@@ -25,5 +25,5 @@
   <ItemGroup>
     <ProjectReference Include="..\GenTimeSheet\GenTimeSheet.csproj" />
   </ItemGroup>
-
+	
 </Project>

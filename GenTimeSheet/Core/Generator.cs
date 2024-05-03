@@ -1,24 +1,24 @@
-﻿using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace GenTimeSheet.Core;
 
-public class Generator
+internal class Generator
 {
     private IEnumerable<IEnumerable<Cell>> _tableSheet;
 
     private readonly Validation _validation;
     private List<int> _holidays;
 
-    public Generator(Validation validation)
+    internal Generator(Validation validation)
     {
         _validation = validation;
     }
@@ -53,7 +53,7 @@ public class Generator
         element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
     }
 
-    public async Task UpdateCells()
+    internal async Task UpdateCells()
     {
         try
         {
