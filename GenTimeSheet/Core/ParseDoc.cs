@@ -38,6 +38,6 @@ namespace GenTimeSheet.Core
             }
         }
 
-        private Paragraph GetFirstParagraph() =>GetElements<Paragraph>().First();
+        private Paragraph GetFirstParagraph() => GetElements<Paragraph>().First();
     }
 }

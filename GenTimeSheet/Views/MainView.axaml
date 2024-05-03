@@ -14,38 +14,40 @@
 	</Design.DataContext>
 	<TabControl>
 		<TabItem Header="Main">
-			<Grid 
-				RowDefinitions="*, Auto, Auto">
-				<ItemsControl
-					Grid.Row="0"
-					ItemsSource="{Binding CrockeryList}">
+			<Grid RowDefinitions="*, Auto, Auto">
+				<ItemsControl Grid.Row="0"
+							  ItemsSource="{Binding CurrentMonthTable}">
 					<ItemsControl.ItemTemplate>
 						<DataTemplate>
-							<Grid ColumnDefinitions="200, auto">
-								<TextBlock Grid.Column="0" 
-										   Text="{Binding Title}"/>
-								<TextBlock Grid.Column="1" 
-										   Margin="5 0" 
+							<ItemsControl Grid.Column="2" ItemsSource="{Binding}">
+								<ItemsControl.ItemsPanel>
+									<ItemsPanelTemplate>
+										<StackPanel Orientation="Horizontal"/>								
+									</ItemsPanelTemplate>
+								</ItemsControl.ItemsPanel>
+								<ItemsControl.ItemTemplate>
+									<DataTemplate>
+										<TextBlock
+										   Margin="5 0"
 										   FontWeight="Bold"
-										   Text="{Binding Number}"/>
-							</Grid>
+										   Text="{Binding}"/>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
 						</DataTemplate>
 					</ItemsControl.ItemTemplate>
 				</ItemsControl>
-				<ListBox 
-					ItemsSource="{Binding Messages}" 
-					Grid.Row="1"/>
-				<Button 
-					IsEnabled="{Binding !HasRequestException}" 
-					Command="{Binding ClickStart}" 
-					Grid.Row="2" 
-					HorizontalAlignment="Center" 
-					Content="Start"/>
+				<ListBox ItemsSource="{Binding Messages}"
+						 Grid.Row="1"/>
+				<Button IsEnabled="{Binding !HasRequestException}"
+						Command="{Binding ClickStart}"
+						Grid.Row="2"
+						HorizontalAlignment="Center"
+						Content="Start"/>
 			</Grid>
 		</TabItem>
-		<TabItem 
-			IsEnabled="{Binding !HasRequestException}" 
-			Header="Calendar">
+		<TabItem IsEnabled="{Binding !HasRequestException}"
+				 Header="Calendar">
 			<controls:AnnualCalendar/>
 		</TabItem>
 	</TabControl>

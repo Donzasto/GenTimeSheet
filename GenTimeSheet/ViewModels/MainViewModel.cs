@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using GenTimeSheet.Core;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using GenTimeSheet.Core;
 
 namespace GenTimeSheet.ViewModels;
 
@@ -16,34 +16,12 @@ internal partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private bool _hasRequestException;
 
-    internal ObservableCollection<Crockery> CrockeryList { get; set; }
+    [ObservableProperty]
+    private ObservableCollection<IEnumerable> _currentMonthTable;
 
-    internal class Crockery
-    {
-        internal string Title { get; set; }
-        internal int Number { get; set; }
-
-        internal Crockery(string title, int number)
-        {
-            Title = title;
-            Number = number;
-        }
-    }
-
-    internal MainViewModel()
+    public MainViewModel()
     {
         GetResponse();
-
-        CrockeryList = new ObservableCollection<Crockery>(new List<Crockery>
-            {
-                new Crockery("dinner plate", 12),
-                new Crockery("side plate", 12),
-                new Crockery("breakfast bowl", 6),
-                new Crockery("cup", 10),
-                new Crockery("saucer", 10),
-                new Crockery("mug", 6),
-                new Crockery("milk jug", 1)
-            });
     }
 
     private async void GetResponse()
@@ -67,9 +45,13 @@ internal partial class MainViewModel : ViewModelBase
             var validation = new Validation("1.docx", "2.docx");
 
             await validation.ValidateDocx();
-    
-            Messages = new ObservableCollection<string>(validation.ValidationErrors);
 
+            var currentMonthTable = new Serialize(validation.CurrentMonthTable).GetTable();
+
+            CurrentMonthTable = new ObservableCollection<IEnumerable>(currentMonthTable);
+
+            Messages = new ObservableCollection<string>(validation.ValidationErrors);
+            
             validation.ValidationErrors.ForEach(v => Messages.Add(v));
 
             var generator = new Generator(validation);
