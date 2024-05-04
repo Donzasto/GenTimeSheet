@@ -36,7 +36,6 @@ internal class Generator
 
         element.RemoveAllChildren();
         element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
-
     }
 
     private void SetMonthHeader(OpenXmlElement element)

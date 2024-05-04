@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Wordprocessing;
@@ -24,8 +23,6 @@ internal class Validation
 
     internal Table CurrentMonthTable { get; }
 
-    private readonly Table _previousMonthTable;
-
     internal IEnumerable<string> NamesWorkedLastDayMonth { get; }
 
     internal List<string> ValidationErrors = [];
@@ -36,14 +33,14 @@ internal class Validation
         var parseDoc2 = new ParseDoc(filePath2);
 
         CurrentMonthTable = parseDoc1.GetTableFromEnd(1);
-        _previousMonthTable = parseDoc2.GetTableFromEnd(1);
 
         string monthName = parseDoc1.GetStringsFromParagraph()[^3].ToLower();
 
+        Table previousMonthTable = parseDoc2.GetTableFromEnd(1);
+        NamesWorkedLastDayMonth = parseDoc2.GetNamesWorkedLastDayMonth(previousMonthTable);
+
         Month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
         Year = int.Parse(parseDoc1.GetStringsFromParagraph()[^2]);
-
-        NamesWorkedLastDayMonth = parseDoc2.GetNamesWorkedLastDayMonth(_previousMonthTable);
     }
 
     internal async Task ValidateDocx()
@@ -116,11 +113,6 @@ internal class Validation
         if (hasIncorrectFirstDay)
             ValidationErrors.Add(FIRST_DAY_ERROR);
     }
-
-    private IEnumerable<string> GetNamesWorkedLastDayMonth() => _previousMonthTable.Elements<TableRow>().
-            Where(rows => rows.Elements<TableCell>().Last().InnerText.EqualsOneOf(Constants.RU_X, Constants.EN_X)).
-            Select(rows => Regex.Replace(rows.Elements<TableCell>().ElementAt(1).InnerText, @"\s+",
-                string.Empty)).ToArray();
 
     private void CheckOrderXsAndEights()
     {
