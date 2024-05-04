@@ -8,10 +8,7 @@ namespace GenTimeSheet.ViewModels;
 internal partial class MainViewModel : ViewModelBase
 {
     [ObservableProperty]
-    private ObservableCollection<string>? _messages = [];
-
-    [ObservableProperty]
-    private string? _requestException;
+    private ObservableCollection<string> _messages = [];
 
     [ObservableProperty]
     private bool _hasRequestException;
@@ -34,7 +31,7 @@ internal partial class MainViewModel : ViewModelBase
         {
             HasRequestException = true;
 
-            Messages?.Add(ex.Message);
+            Messages.Add(ex.Message);
         }
     }
 
@@ -51,8 +48,6 @@ internal partial class MainViewModel : ViewModelBase
             CurrentMonthTable = new ObservableCollection<IEnumerable>(currentMonthTable);
 
             Messages = new ObservableCollection<string>(validation.ValidationErrors);
-            
-            validation.ValidationErrors.ForEach(v => Messages.Add(v));
 
             var generator = new Generator(validation);
 
