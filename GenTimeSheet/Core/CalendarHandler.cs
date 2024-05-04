@@ -67,6 +67,26 @@ internal class CalendarHandler
         return holidays;
     }
 
+    internal async Task<int> GetLastWorkDayInMonth(int year, int month)
+    {
+        List<int> weekends = await GetMonthHolidaysDates(month);
+        weekends.AddRange(await GetMonthWeekends(month));
+
+        int daysInMonth = DateTime.DaysInMonth(year, month);
+        int lastDay = 1;
+
+        for (int i = daysInMonth; i > 0; i--)
+        {
+            if (!weekends.Contains(i))
+            {
+                lastDay = i;
+                break;
+            }
+        }
+
+        return lastDay;
+    }
+
     private async Task<List<string>> GetHolidaysParagraphs()
     {
         string[] _response;

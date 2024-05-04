@@ -66,7 +66,7 @@ internal class Generator
         }
     }
 
-    private void GenerateFile()
+    private async void GenerateFile()
     {
         string templatePath = GetMonthTemplatePath();
         string filePath = FileHandler.GetFilePath(templatePath);
@@ -98,6 +98,9 @@ internal class Generator
         SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
             GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
+        await SetDate(worksheet, _validation.Month, 3);
+        await SetDate(worksheet, _validation.Month - 1, 7);
+
         SetTimesheetNumber(sharedStringTable.ElementAt(0));
         SetMonthHeader(sharedStringTable.ElementAt(4));
 
@@ -106,6 +109,29 @@ internal class Generator
             Concat(row.Elements<Cell>().Skip(19))).ToArray();
 
         PopulateCells(namesColumn, currentMonthTable, sharedStringTable);
+    }
+
+    private async Task<Row> SetDate(Worksheet worksheet, int month, int rowIndex)
+    {
+        Row row = worksheet.GetFirstChild<SheetData>().Elements<Row>().ElementAt(rowIndex);
+
+        var calendarHandler = new CalendarHandler();
+
+        foreach (Cell cell in row)
+        {
+            if ((cell.DataType != null) && (cell.DataType == CellValues.Number))
+            {
+                cell.DataType = CellValues.Date;
+
+                int lastWorkDayInMonth = await calendarHandler.GetLastWorkDayInMonth(_validation.Year, month);
+
+                var dateTime = new DateTime(_validation.Year, month, lastWorkDayInMonth);
+
+                cell.CellValue = new CellValue(dateTime);
+            }
+        }
+
+        return row;
     }
 
     private void PopulateCells(IEnumerable<Cell> namesColumn, IEnumerable<TableRow> currentMonthTable, SharedStringTable sharedStringTable)
