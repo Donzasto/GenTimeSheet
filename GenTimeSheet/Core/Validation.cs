@@ -19,13 +19,14 @@ internal class Validation
     private const string EIGHTS_NOT_EXIST_ERROR = "Нет восьмёрок";
     private const string EIGHTS_AFTER_X_ERROR = "Неверная восьмёрка после Х в день ";
 
-    internal int Month { get; private set; }
-    internal int Year { get; private set; }
+    internal int Month { get; }
+    internal int Year { get; }
 
-    internal readonly Table CurrentMonthTable;
+    internal Table CurrentMonthTable { get; }
+
     private readonly Table _previousMonthTable;
 
-    internal readonly IEnumerable<string> NamesWorkedLastDayMonth;
+    internal IEnumerable<string> NamesWorkedLastDayMonth { get; }
 
     internal List<string> ValidationErrors = [];
 
@@ -42,7 +43,7 @@ internal class Validation
         Month = Array.IndexOf(DateTimeFormatInfo.CurrentInfo.MonthNames, monthName) + 1;
         Year = int.Parse(parseDoc1.GetStringsFromParagraph()[^2]);
 
-        NamesWorkedLastDayMonth = GetNamesWorkedLastDayMonth();
+        NamesWorkedLastDayMonth = parseDoc2.GetNamesWorkedLastDayMonth(_previousMonthTable);
     }
 
     internal async Task ValidateDocx()

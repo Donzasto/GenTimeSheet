@@ -94,7 +94,7 @@ internal class Generator
         IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
             row.Elements<Cell>().ElementAt(1));
 
-        IEnumerable<TableRow> table = _validation.CurrentMonthTable.Elements<TableRow>().Skip(1);
+        IEnumerable<TableRow> currentMonthTable = _validation.CurrentMonthTable.Elements<TableRow>().Skip(1);
 
         SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
             GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
@@ -106,10 +106,10 @@ internal class Generator
             Select(row => row.Elements<Cell>().Skip(4).Take(15).
             Concat(row.Elements<Cell>().Skip(19))).ToArray();
 
-        PopulateCells(namesColumn, table, sharedStringTable);
+        PopulateCells(namesColumn, currentMonthTable, sharedStringTable);
     }
 
-    private void PopulateCells(IEnumerable<Cell> namesColumn, IEnumerable<TableRow> table, SharedStringTable sharedStringTable)
+    private void PopulateCells(IEnumerable<Cell> namesColumn, IEnumerable<TableRow> currentMonthTable, SharedStringTable sharedStringTable)
     {
         var namesCount = new Dictionary<string, int>();
 
@@ -130,7 +130,7 @@ internal class Generator
 
                 int rowIndex = int.Parse(Regex.Match(cell.CellReference, @"\d+").Value) - 1;
 
-                IEnumerable<TableRow> personalDays = table.Where(row =>
+                IEnumerable<TableRow> personalDays = currentMonthTable.Where(row =>
                     string.Compare(row.Elements<TableCell>().ElementAt(1).InnerText, name,
                     CultureInfo.CurrentCulture, CompareOptions.IgnoreSymbols) == 0);
 
