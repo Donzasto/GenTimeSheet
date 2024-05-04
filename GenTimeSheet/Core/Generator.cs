@@ -39,10 +39,8 @@ internal class Generator
     }
 
     private void SetMonthHeader(OpenXmlElement element)
-    {
-        DateTimeFormatInfo dateTimeFormatInfo = new CultureInfo("ru-RU").DateTimeFormat;
-
-        string monthGenitiveNames = dateTimeFormatInfo.MonthGenitiveNames[_validation.Month - 1];
+    {        
+        string monthGenitiveNames = GetCurrentMonthGenitiveName();
 
         int days = DateTime.DaysInMonth(_validation.Year, _validation.Month);
 
@@ -50,6 +48,13 @@ internal class Generator
 
         element.RemoveAllChildren();
         element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
+    }
+
+    private string GetCurrentMonthGenitiveName()
+    {
+        DateTimeFormatInfo dateTimeFormatInfo = new CultureInfo("ru-RU").DateTimeFormat;
+
+        return dateTimeFormatInfo.MonthGenitiveNames[_validation.Month - 1];
     }
 
     internal async Task Run()
@@ -90,6 +95,9 @@ internal class Generator
 
         Worksheet worksheet = worksheetPart.Worksheet;
 
+        await SetDateCell(worksheet, _validation.Month, 3);
+        await SetDateCell(worksheet, _validation.Month - 1, 7);
+
         IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
             row.Elements<Cell>().ElementAt(1));
 
@@ -98,8 +106,13 @@ internal class Generator
         SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
             GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
-        await SetDate(worksheet, _validation.Month, 3);
-        await SetDate(worksheet, _validation.Month - 1, 7);
+        var a = sharedStringTable.ElementAt(51).FirstChild;
+
+        string footerDate = $"« __ » {GetCurrentMonthGenitiveName()} {_validation.Year} года";
+
+        sharedStringTable.ElementAt(51).RemoveAllChildren();
+        sharedStringTable.ElementAt(51).
+            AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(footerDate));
 
         SetTimesheetNumber(sharedStringTable.ElementAt(0));
         SetMonthHeader(sharedStringTable.ElementAt(4));
@@ -111,13 +124,13 @@ internal class Generator
         PopulateCells(namesColumn, currentMonthTable, sharedStringTable);
     }
 
-    private async Task<Row> SetDate(Worksheet worksheet, int month, int rowIndex)
+    private async Task<Row> SetDateCell(Worksheet worksheet, int month, int rowIndex)
     {
         Row row = worksheet.GetFirstChild<SheetData>().Elements<Row>().ElementAt(rowIndex);
 
         var calendarHandler = new CalendarHandler();
 
-        foreach (Cell cell in row)
+        foreach (Cell cell in row.Elements<Cell>())
         {
             if ((cell.DataType != null) && (cell.DataType == CellValues.Number))
             {
