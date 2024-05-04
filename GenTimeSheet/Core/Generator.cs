@@ -111,6 +111,8 @@ internal class Generator
 
     private void PopulateCells(IEnumerable<Cell> namesColumn, IEnumerable<TableRow> table, SharedStringTable sharedStringTable)
     {
+        var namesCount = new Dictionary<string, int>();
+
         foreach (var cell in namesColumn)
         {
             int formulsColumn = 15;
@@ -120,6 +122,11 @@ internal class Generator
                 int ssid = int.Parse(cell.InnerText);
 
                 string name = sharedStringTable.ChildElements[ssid].InnerText;
+
+                if (!namesCount.TryAdd(name, 1))
+                {
+                    namesCount[name] = 2;
+                }                
 
                 int rowIndex = int.Parse(Regex.Match(cell.CellReference, @"\d+").Value) - 1;
 
@@ -147,15 +154,18 @@ internal class Generator
                     if (cellIndex >= formulsColumn)
                         cellIndex++;
 
-                    if (innerText == Constants.RU_B)
+                    if (innerText == Constants.RU_B && namesCount[name] == 1)
                     {
                         SetCell(cellIndex, rowIndex, Constants.RU_B, CellValues.String);
                     }
-                    else if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X))
+                    else if(_validation.NamesWorkedLastDayMonth.Contains(name.Replace(" ", "")) && namesCount[name] == 1)
                     {
-                        string dayStatus = GetDayStatus(cellIndex);
+                        SetCells(cellIndex + 1, rowIndex);
+                    }
+                    else if (innerText.EqualsOneOf(Constants.RU_X, Constants.EN_X) && namesCount[name] == 1)
+                    {
+                        SetDayStatusCell(cellIndex, rowIndex);
 
-                        SetCell(cellIndex, rowIndex, dayStatus, CellValues.String);
                         SetCell(cellIndex, rowIndex + 1, Constants.SIXTEEN, CellValues.Number);
                         SetCell(cellIndex, rowIndex + 2, Constants.TWO, CellValues.Number);
 
@@ -167,9 +177,13 @@ internal class Generator
 
                         SetCells(cellIndex + 1, rowIndex);
                     }
-                    else if (innerText.EqualsOneOf(Constants.RU_O, Constants.EN_O))
+                    else if (innerText.EqualsOneOf(Constants.RU_O, Constants.EN_O) && namesCount[name] == 1)
                     {
                         SetCell(cellIndex, rowIndex, Constants.RU_O, CellValues.String);
+                    }
+                    else if (innerText.EqualsOneOf(Constants.EIGHT) && namesCount[name] == 2)
+                    {
+                        SetEightCell(cellIndex, rowIndex);
                     }
                 }
 
@@ -202,12 +216,24 @@ internal class Generator
         return dayStatus;
     }
 
-    private void SetCells(int cellIndex, int rowIndex)
+    private void SetDayStatusCell(int cellIndex, int rowIndex)
     {
         string cellContent = GetDayStatus(cellIndex);
 
         SetCell(cellIndex, rowIndex, cellContent, CellValues.String);
+    }
+
+    private void SetEightCell(int cellIndex, int rowIndex)
+    {
+        SetDayStatusCell(cellIndex, rowIndex);
+
         SetCell(cellIndex, rowIndex + 1, Constants.EIGHT, CellValues.Number);
+    }
+
+    private void SetCells(int cellIndex, int rowIndex)
+    {
+        SetEightCell(cellIndex, rowIndex);
+
         SetCell(cellIndex, rowIndex + 2, Constants.SIX, CellValues.Number);
     }
 
