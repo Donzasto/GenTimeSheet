@@ -56,7 +56,7 @@ internal partial class MainViewModel : ViewModelBase
 
             var generator = new Generator(validation);
 
-            await generator.UpdateCells();
+            await generator.Run();
 
             Messages.Add("Файл успшено создан");
         }
