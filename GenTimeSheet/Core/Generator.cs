@@ -121,7 +121,7 @@ internal class Generator
         await PopulateCells(namesColumn, currentMonthTable, sharedStringTable, worksheet);
     }
 
-    private async Task<Row> SetDate(Worksheet worksheet, int month, int rowIndex)
+    private async Task SetDate(Worksheet worksheet, int month, int rowIndex)
     {
         Row row = worksheet.GetFirstChild<SheetData>().Elements<Row>().ElementAt(rowIndex);
 
@@ -140,8 +140,6 @@ internal class Generator
                 cell.CellValue = new CellValue(dateTime);
             }
         }
-
-        return row;
     }
 
     private async Task PopulateCells(IEnumerable<Cell> namesColumn, 
