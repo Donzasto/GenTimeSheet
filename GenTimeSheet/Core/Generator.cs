@@ -34,8 +34,7 @@ internal class Generator
     {
         string value = "Табель №" + _validation.Month * 2;
 
-        element.RemoveAllChildren();
-        element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
+        UpdateChild(element, value);
     }
 
     private void SetMonthHeader(OpenXmlElement element)
@@ -46,6 +45,18 @@ internal class Generator
 
         string value = $"C 1 {monthGenitiveNames} по {days} {monthGenitiveNames}";
 
+        UpdateChild(element, value);
+    }
+
+    private void SetFooterDate(OpenXmlElement element)
+    {
+        string value = $"« __ » {GetCurrentMonthGenitiveName()} {_validation.Year} года";
+
+        UpdateChild(element, value);
+    }
+
+    private void UpdateChild(OpenXmlElement element, string value)
+    {
         element.RemoveAllChildren();
         element.AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(value));
     }
@@ -75,11 +86,11 @@ internal class Generator
     {
         string templatePath = GetMonthTemplatePath();
         string filePath = FileHandler.GetFilePath(templatePath);
-        string format = DateTime.Now.ToString("d-MM-yyyy-HH-mm-ss");
+        string newFileName = DateTime.Now.ToString("d-MM-yyyy-HH-mm-ss");
 
         var template = SpreadsheetDocument.Open(filePath, true);
 
-        using SpreadsheetDocument spreadSheet = template.Clone($"../../../../GenTimeSheet/files/{format}.xlsx", true);
+        using SpreadsheetDocument spreadSheet = template.Clone($"../../../../GenTimeSheet/files/{newFileName}.xlsx", true);
 
         template.Dispose();
 
@@ -95,9 +106,6 @@ internal class Generator
 
         Worksheet worksheet = worksheetPart.Worksheet;
 
-        await SetDateCell(worksheet, _validation.Month, 3);
-        await SetDateCell(worksheet, _validation.Month - 1, 7);
-
         IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
             row.Elements<Cell>().ElementAt(1));
 
@@ -106,25 +114,14 @@ internal class Generator
         SharedStringTable sharedStringTable = spreadSheet.WorkbookPart.
             GetPartsOfType<SharedStringTablePart>().First().SharedStringTable;
 
-        var a = sharedStringTable.ElementAt(51).FirstChild;
-
-        string footerDate = $"« __ » {GetCurrentMonthGenitiveName()} {_validation.Year} года";
-
-        sharedStringTable.ElementAt(51).RemoveAllChildren();
-        sharedStringTable.ElementAt(51).
-            AppendChild(new DocumentFormat.OpenXml.Spreadsheet.Text(footerDate));
-
-        SetTimesheetNumber(sharedStringTable.ElementAt(0));
-        SetMonthHeader(sharedStringTable.ElementAt(4));
-
         _tableSheet = worksheet.GetFirstChild<SheetData>().Elements<Row>().
             Select(row => row.Elements<Cell>().Skip(4).Take(15).
             Concat(row.Elements<Cell>().Skip(19))).ToArray();
 
-        PopulateCells(namesColumn, currentMonthTable, sharedStringTable);
+        await PopulateCells(namesColumn, currentMonthTable, sharedStringTable, worksheet);
     }
 
-    private async Task<Row> SetDateCell(Worksheet worksheet, int month, int rowIndex)
+    private async Task<Row> SetDate(Worksheet worksheet, int month, int rowIndex)
     {
         Row row = worksheet.GetFirstChild<SheetData>().Elements<Row>().ElementAt(rowIndex);
 
@@ -147,8 +144,16 @@ internal class Generator
         return row;
     }
 
-    private void PopulateCells(IEnumerable<Cell> namesColumn, IEnumerable<TableRow> currentMonthTable, SharedStringTable sharedStringTable)
+    private async Task PopulateCells(IEnumerable<Cell> namesColumn, 
+        IEnumerable<TableRow> currentMonthTable, SharedStringTable sharedStringTable, 
+        Worksheet worksheet)
     {
+        await SetDate(worksheet, _validation.Month, 3);
+        await SetDate(worksheet, _validation.Month - 1, 7);
+        SetFooterDate(sharedStringTable.ElementAt(51));
+        SetTimesheetNumber(sharedStringTable.ElementAt(0));
+        SetMonthHeader(sharedStringTable.ElementAt(4));
+
         var namesCount = new Dictionary<string, int>();
 
         foreach (var cell in namesColumn)
