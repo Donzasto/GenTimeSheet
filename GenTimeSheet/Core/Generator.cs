@@ -187,7 +187,7 @@ internal class Generator
 
                 int daysCount = days.Count() - 4;
 
-                if (_validation.NamesWorkedLastDayMonth.Contains(name.Replace(" ", "")) && namesCount[name] == 1)
+                if (_validation.NamesWorkedLastDayMonth.Contains(name.Replace("\n", "").Replace(" ", "")) && namesCount[name] == 1)
                 {
                     SetCells(0, rowIndex);
                 }
