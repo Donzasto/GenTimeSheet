@@ -107,7 +107,7 @@ internal class Generator
         Worksheet worksheet = worksheetPart.Worksheet;
 
         IEnumerable<Cell> namesColumn = worksheet.Descendants<Row>().Select(row =>
-            row.Elements<Cell>().ElementAt(1));
+        row.Elements<Cell>().ElementAt(1));
 
         IEnumerable<TableRow> currentMonthTable = _validation.CurrentMonthTable.Elements<TableRow>().Skip(1);
 
@@ -148,7 +148,7 @@ internal class Generator
     {
         await SetDate(worksheet, _validation.Month, 3);
         await SetDate(worksheet, _validation.Month - 1, 7);
-        SetFooterDate(sharedStringTable.ElementAt(51));
+        SetFooterDate(sharedStringTable.First(w => w.InnerText.Equals("[FooterDate]")));
         SetTimesheetNumber(sharedStringTable.ElementAt(0));
         SetMonthHeader(sharedStringTable.ElementAt(4));
 

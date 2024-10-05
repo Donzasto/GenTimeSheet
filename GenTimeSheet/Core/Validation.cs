@@ -116,7 +116,7 @@ internal class Validation
 
     private void CheckOrderXsAndEights()
     {
-        var days = CurrentMonthTable.Elements<TableRow>().ElementAt(3).Elements<TableCell>().
+        var days = CurrentMonthTable.Elements<TableRow>().ElementAt(8).Elements<TableCell>().
             Select(cell => cell.InnerText).ToArray();
 
         if (days.All(cell => cell != Constants.EIGHT))
